@@ -1,0 +1,34 @@
+1.- programa → Programa id Inicio lista_sent Fin
+2.- lista_sent → sentencia sent_final
+3.- sent_final → sentencia sent_final
+4.- sent_final → ε
+5.- sentencia → tipo lista_id;
+6.- sentencia → id = expresion;
+7.- sentencia → Leer ( lista_id );
+8.- sentencia → Escribir ( lista_expr );
+9.- sentencia → Si expr_bool Entonces sentencia Sino sentencia
+10.- lista_id → id id_final
+11.- id_final → , id id_final
+12.- id_final → ε
+13.- lista_expr → expresion lista_exprfinal
+14.- lista_exprfinal → , expresion lista_exprfinal
+15.- lista_exprfinal → ε
+16.- expr_bool → expr_arit operel expr_arit
+17.- expresion → expr_arit expr_final
+18.- expr_final → operador expr_arit expr_final
+19.- expr_final → ε
+20.- expr_arit → (expresion)
+21.- expr_arit → id
+22.- expr_arit → literalentera
+23.- expr_arit → literalreal
+24.- tipo → Entero
+25.- tipo → Real
+26.- operador → +
+27.- operador → -
+28.- operador → /
+29.- operel → *
+30.- operel → >
+31.- operel → <
+32.- operel → <>
+33.- operel → ==
+34.- inicio → programa

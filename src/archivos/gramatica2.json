@@ -1,0 +1,58 @@
+{
+  "N": [
+    "program",
+    "statement_list",
+    "statement_tail",
+    "statement",
+    "id_list",
+    "id_tail",
+    "expr_list",
+    "expr_tail",
+    "expression",
+    "primary",
+    "primary_tail",
+    "addop",
+    "system_goal"
+  ],
+  "T": [
+    "begin",
+    "end",
+    "id",
+    ":=",
+    ";",
+    "read",
+    "(",
+    ")",
+    "write",
+    ",",
+    "intLiteral",
+    "+",
+    "-"
+  ],
+  "S": "system_goal",
+  "P": [
+    {"id": 1, "N": "program", "NuT": ["begin", "statement_list", "end"]},
+    {"id": 2, "N": "statement_list", "NuT": ["statement", "statement_tail"]},
+    {"id": 3, "N": "statement_tail", "NuT": ["statement", "statement_tail"]},
+    {"id": 4, "N": "statement_tail", "NuT": [""]},
+    {"id": 5, "N": "statement", "NuT": ["id", ":=", "expression", ";"]},
+    {"id": 6, "N": "statement", "NuT": ["read", "(", "id_list", ")", ";"]},
+    {"id": 7, "N": "statement", "NuT": ["write", "(", "expr_list", ")", ";"]},
+    {"id": 8, "N": "id_list", "NuT": ["id", "id_tail"]},
+    {"id": 9, "N": "id_tail", "NuT": [",", "id", "id_tail"]},
+    {"id": 10, "N": "id_tail", "NuT": [""]},
+    {"id": 11, "N": "expr_list", "NuT": ["expression", "expr_tail"]},
+    {"id": 12, "N": "expr_tail", "NuT": [",", "expression", "expr_tail"]},
+    {"id": 13, "N": "expr_tail", "NuT": [""]},
+    {"id": 14, "N": "expression", "NuT": ["primary", "primary_tail"]},
+    {"id": 15, "N": "primary_tail", "NuT": ["addop", "primary", "primary_tail"]},
+    {"id": 16, "N": "primary_tail", "NuT": [""]},
+    {"id": 17, "N": "primary", "NuT": ["(", "expression", ")"]},
+    {"id": 18, "N": "primary", "NuT": ["id"]},
+    {"id": 19, "N": "primary", "NuT": ["intLiteral"]},
+    {"id": 20, "N": "addop", "NuT": ["+"]},
+    {"id": 21, "N": "addop", "NuT": ["-"]},
+    {"id": 22, "N": "system_goal", "NuT": ["program", "$"]}
+  ]
+}
+

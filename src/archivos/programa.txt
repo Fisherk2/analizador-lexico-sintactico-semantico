@@ -1,0 +1,19 @@
+Programa main
+
+Inicio
+
+    Real multiple, cuenta;
+    Entero numero, res;
+
+    Leer (numero);
+
+    multiple = 0.12 + (numero - 0.120);
+    Si multiple == 10 Entonces
+        Escribir(numero);
+    Sino
+        Escribir(multiple);
+    numero = multiple / 123.99;
+    res = numero + cuenta;
+    Escribir(res);
+
+Fin
