@@ -36,8 +36,7 @@ public class Main {
 
 
         Syntax sintactico = new Syntax(
-                //(Gramatica) new Fichero("gramatica.json").deserializar_json(Gramatica.class)
-                new Fichero("gramaticaDeAliexpress.txt").deserializar_gramatica()
+                (Gramatica) new Fichero("gramatica.json").deserializar_json(Gramatica.class)
         );
 
         Analizador analizador = new Analizador(lexico, sintactico);
@@ -59,9 +58,6 @@ public class Main {
 
 
         System.out.println("-------------------------------------------------------");
-        Gramatica gramatica_txt = new Fichero("gramaticaDeAliexpress.txt").deserializar_gramatica();
-
-        System.out.println(gramatica_txt);
 
     }
 

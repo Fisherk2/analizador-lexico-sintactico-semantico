@@ -19,7 +19,7 @@
   {"clasificacion": "Caracter simple", "regex": "<", "atributo": 60},
   {"clasificacion": "Caracter simple", "regex": "=", "atributo": 61},
   {"clasificacion": "Caracter simple", "regex": ">", "atributo": 62},
-  {"clasificacion": "LiteralEntera", "regex": "^[1-9][0-9]*|[0]", "atributo": 555},
-  {"clasificacion": "LiteralReal", "regex": "(^[1-9][0-9]*|[0])\\.[0-9]+", "atributo": 666},
-  {"clasificacion": "ID", "regex": "^[a-z](_*([a-z]|[0-9]))*", "atributo": 777}
+  {"clasificacion": "Numeros enteros", "regex": "^[1-9][0-9]*|[0]", "atributo": 555},
+  {"clasificacion": "Numeros flotantes", "regex": "(^[1-9][0-9]*|[0])\\.[0-9]+", "atributo": 666},
+  {"clasificacion": "Identificadores", "regex": "^[a-z](_*([a-z]|[0-9]))*", "atributo": 777}
 ]

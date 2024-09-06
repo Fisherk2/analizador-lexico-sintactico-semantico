@@ -12,24 +12,49 @@ public class Token {
     public final String LEXEMA;
 
     /**
+     * Clasificacion lexica donde pertenece ese token.
+     */
+    public final String CLASIFICACION_LEXICA;
+
+    /**
      * Propiedad numerica que pertenece de la tabla de clasificacion lexica.
      */
     public final int ATRIBUTO;
 
     /**
+     * Linea de codigo donde se encuentra el lexema analizado.
+     */
+    public final int LINEA_DE_CODIGO;
+
+    /**
      * Clase que almacena las propiedades de un Token analizado.
      *
-     * @param lexema   Nombre propio del elemento analizado.
-     * @param atributo Propiedad numerica que pertenece de la tabla de clasificacion lexica.
+     * @param lexema          Nombre propio del elemento analizado.
+     * @param atributo        Propiedad numerica que pertenece de la tabla de clasificacion lexica.
+     * @param linea_de_codigo Numero de linea donde se encuentra el lexema analizado.
      */
-    public Token(String lexema, int atributo) {
+    public Token(String lexema, String clasificacion_lexica, int atributo, int linea_de_codigo) {
         this.LEXEMA = lexema;
+        this.CLASIFICACION_LEXICA = clasificacion_lexica;
         this.ATRIBUTO = atributo;
+        this.LINEA_DE_CODIGO = linea_de_codigo;
+    }
+
+    /**
+     * Clase que almacena las propiedades de un Token analizado.
+     *
+     * @param lexema Nombre propio del elemento analizado.
+     */
+    public Token(String lexema) {
+        this.LEXEMA = lexema;
+        this.CLASIFICACION_LEXICA = "SIN CLASIFICAR";
+        this.ATRIBUTO = 0;
+        this.LINEA_DE_CODIGO = 0;
     }
 
     @Override
     public String toString() {
-        return "[" + LEXEMA + "][" + ATRIBUTO + "]";
+        return "[" + LEXEMA + "][" + CLASIFICACION_LEXICA + "][" + ATRIBUTO + "] - [" + LINEA_DE_CODIGO + "]";
     }
 
     //▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼ EQUALS POR LEXEMA ▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼//

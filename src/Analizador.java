@@ -1,7 +1,6 @@
 import lexico.Lexic;
 import lexico.Token;
 import sintactico.Syntax;
-import util.PilaDeAliexpress;
 
 import java.util.LinkedList;
 import java.util.Scanner;
@@ -16,8 +15,7 @@ public class Analizador {
 
     private final Lexic LEXICO;
     private final Syntax SINTACTICO;
-    //private Stack<String> stackDriver;
-    private PilaDeAliexpress stackDriver;
+    private Stack<String> stackDriver;
     private LinkedList<String> lineasCodigoFuente;
 
     private boolean hayError;
@@ -86,9 +84,10 @@ public class Analizador {
 
     private void aplicarLLDriver() {
 
+        //TODO: ELIMINAR PROCEDIMIENTO LLDRIVER PARA SALIDA DE CONSOLA MAS LIMPIA
+
         // ◂ ◂ ◂ ◂ Iniciamos nueva pila vacia ▸ ▸ ▸ ▸ //
-        //stackDriver = new Stack<>();
-        stackDriver = new PilaDeAliexpress();
+        stackDriver = new Stack<>();
 
         // ◂ ◂ ◂ ◂ Push(s) -- poner el símbolo inicial en la pila vacía ▸ ▸ ▸ ▸ //
         stackDriver.push(SINTACTICO.getSimboloInicial());
@@ -167,12 +166,10 @@ public class Analizador {
                 }
             }
 
-//            System.out.println("☲☴☲☱☲☴☲☱☲☴☲☱☲☴☲☱☲☴☲☱☲☴☲☱☲☴☲☱☲☴☲☱☲ PILA ☲☱☲☴☲☱☲☴☲☱☲☴☲☱☲☴☲☱☲☴☲☱☲☴☲☱☲☴☲☱☲☴☲");
-//            for (int i = stackDriver.size() - 1; i >= 0; i--) {
-//                System.out.println(stackDriver.get(i));
-//            }
-
-            System.out.println(stackDriver);
+            System.out.println("☲☴☲☱☲☴☲☱☲☴☲☱☲☴☲☱☲☴☲☱☲☴☲☱☲☴☲☱☲☴☲☱☲ PILA ☲☱☲☴☲☱☲☴☲☱☲☴☲☱☲☴☲☱☲☴☲☱☲☴☲☱☲☴☲☱☲☴☲");
+            for (int i = stackDriver.size() - 1; i >= 0; i--) {
+                System.out.println(stackDriver.get(i));
+            }
 
             System.out.println("☲☴☲☱☲☴☲☱☲☴☲☱☲☴☲☱☲☴☲☱☲☴☲☱☲☴☲☱☲☴☲☱☲ TABLA DE SIMBOLOS ☲☱☲☴☲☱☲☴☲☱☲☴☲☱☲☴☲☱☲☴☲☱☲☴☲☱☲☴☲☱☲☴☲");
 
@@ -227,7 +224,7 @@ public class Analizador {
         }
 
         // ◂ ◂ ◂ ◂ Enviamos el titulo de clasificacion ▸ ▸ ▸ ▸ //
-        return LEXICO.queClasificacionEs(entrada_a.LEXEMA).clasificacion;
+        return LEXICO.getClasificacionLexica(entrada_a.LEXEMA).clasificacion;
     }
 
     /**
@@ -251,7 +248,7 @@ public class Analizador {
 
         // ◂ ◂ ◂ ◂ Cuando se intente pedir otro token y el codigo fuente ya se acabo, devolvera fin de archivo ▸ ▸ ▸ ▸ //
         if (numLineaCodigo >= lineasCodigoFuente.size()) {
-            return new Token("$", 0);
+            return new Token("$");
         }
 
         // ◂ ◂ ◂ ◂ Recorrer la siguiente linea de texto en caso de que halla una linea vacia o se halla terminado de leer dicha linea ▸ ▸ ▸ ▸ //
@@ -303,9 +300,10 @@ public class Analizador {
         // ◂ ◂ ◂ ◂ Igualamos apuntadores para la proxima peticion. ▸ ▸ ▸ ▸ //
         bof = eof;
 
-        // ◂ ◂ ◂ ◂ Generamos Token y lo almacenamos en la tabla de simbolos ▸ ▸ ▸ ▸ //
+        // ◂ ◂ ◂ ◂ Generamos Token y lo almacenamos en la tabla de simbolos y tokens ▸ ▸ ▸ ▸ //
         Token token = LEXICO.crearToken(subcadena, numLinea);
         LEXICO.almacenarSimbolo(token);
+        LEXICO.almacenarToken(token);
 
         // ◂ ◂ ◂ ◂ Damos el token generado con esa subcadena ▸ ▸ ▸ ▸ //
         return token;
@@ -320,7 +318,7 @@ public class Analizador {
     private boolean esCaracterEspecial(char caracter) {
 
         // ◂ ◂ ◂ ◂ Los caracteres simples siempre seran la SEGUNDA PRIORIDAD de la tabla de clasificacion lexica ▸ ▸ ▸ ▸ //
-        return LEXICO.queClasificacionEs(String.valueOf(caracter)).clasificacion.equals(LEXICO.getPrioridadLexica(1));
+        return LEXICO.getClasificacionLexica(String.valueOf(caracter)).clasificacion.equals(LEXICO.getPrioridadLexica(1));
     }
 
     /**

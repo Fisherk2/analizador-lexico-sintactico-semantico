@@ -1,5 +1,9 @@
 package util;
 
+/**
+ * Clase que sirve como estructura de datos de tipo pila para cadenas de texto.
+ * @deprecated Se descartar para sustituirlo por la clase Stack de java.util.
+ */
 public class PilaDeAliexpress {
 
     // Nodo de la pila

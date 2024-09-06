@@ -1,9 +1,9 @@
 
-# Analizador de codigo lexico - sintactico.
+# Analizador de codigo lexico - sintactico - semantico (PROXIMO A IMPLEMENTAR).
 
 ## Descripción
 
-Programa que analiza lexica y sintacticamente un archivo de texto que contenga un codigo que perteneciente a un lenguaje.
+Programa que analiza lexica, sintacticamente y semanticamente un archivo de texto que contenga un codigo que perteneciente a un lenguaje.
 
 ## Uso
 
@@ -15,9 +15,12 @@ El analizador funciona dependiendo del lenguaje en que debe ser escrito el codig
 
 - La tabla de clasificacion lexica, igualmente configurable en un archivo JSON ubicada en `src/archivos/tabla_clasificacion_lexica.json`.
 
-- Por ultimo la gramatica, hay dos formas distintas de configurarlo, en este caso esta en la forma de JSON ubicado en la misma ruta que las anteriores `src/archivos/gramatica.json`. Pero existe otra manera de configurarla, es por medio del texto plano igualmente alojado en `src/archivos/gramaticaDeAliexpress.txt`. Esta ultima forma de configurar se hace de la siguiente manera: 
-`N.- No terminal -> Conjunto NuT`
+- Por ultimo la gramatica, hay dos formas distintas de configurarlo, en este caso esta en la forma de JSON ubicado en la misma ruta que las anteriores `src/archivos/gramatica.json`.
 
+**(NO RECOMENDABLE, OMITE ESTE PASO YA QUE TIENDE A PROVOCAR ERRORES)**
+Pero existe otra manera de configurarla, es por medio del texto plano igualmente alojado en `src/archivos/gramaticaDeAliexpress.txt`.
+
+Esta ultima forma de configurar se hace de la siguiente manera: `N.- No terminal -> Conjunto NuT`
 Donde:
 - `N` es el numero de produccion.
 - `No terminal` es simbolo no terminal que representa la produccion.
@@ -30,8 +33,8 @@ Donde:
 En cualquier caso, las dos maneras de establecer la gramatica ya estan listas para configurar, solo es cuestion de descomentar y comentar el estilo de gramatica que desea utilizar, este se implementa cada que se instancia un nuevo objeto de tipo Syntax como se ve en este ejemplo:
 ```
 Syntax sintactico = new Syntax(
-                //(Gramatica) new Fichero("gramatica.json").deserializar_json(Gramatica.class)
-                new Fichero("gramaticaDeAliexpress.txt").deserializar_gramatica()
+                (Gramatica) new Fichero("gramatica.json").deserializar_json(Gramatica.class)
+                //new Fichero("gramaticaDeAliexpress.txt").deserializar_gramatica()
         );
 ```
 Una vez configurando estos ficheros, el analizador debe funcionar apropiadamente si el lenguaje el cual el codigo pertenece, esta correctamente establecido.

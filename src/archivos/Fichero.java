@@ -114,6 +114,7 @@ public class Fichero {
      *
      * @return El objeto de la gramatica.
      * @implNote Las producciones gramaticales debe llevar este formato: id .- N -> [Simbolos NuT separado por espacios]
+     * @deprecated Metodo poco practico y suceptible a errores de escritura en el archivo de texto.
      */
     public Gramatica deserializar_gramatica() {
 

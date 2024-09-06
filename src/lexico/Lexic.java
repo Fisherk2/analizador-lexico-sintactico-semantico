@@ -14,8 +14,10 @@ public class Lexic {
     private final Automata AFN;
     private final LinkedList<String> PRIORIDAD_CLASIFICACION;
     private final Clasificacion[] TABLA_CLASIFICACION_LEXICA;
+    private final LinkedList<Token> TABLA_DE_TOKENS;
+    //TODO: Hacerlos HASHSET
     private final LinkedList<Clasificacion> TABLA_PALABRAS_RESERVADAS;
-    private final LinkedList<Token> TABLA_SIMBOLOS;
+    private final LinkedList<Token> TABLA_SIMBOLOS; //TODO: CAMBIAR CLASE TOKEN POR CLASE SIMBOLO
 
     private int numIdentificadores;
 
@@ -32,6 +34,7 @@ public class Lexic {
 
         TABLA_PALABRAS_RESERVADAS = new LinkedList<>();
         TABLA_SIMBOLOS = new LinkedList<>();
+        TABLA_DE_TOKENS = new LinkedList<>();
         PRIORIDAD_CLASIFICACION = new LinkedList<>();
         AFN = automata;
         TABLA_CLASIFICACION_LEXICA = tabla_clasificacion_lexica;
@@ -40,6 +43,8 @@ public class Lexic {
 
         // ◂ ◂ ◂ ◂ Almacenamos clasificaciones en orden de prioridad sin duplicados ▸ ▸ ▸ ▸ //
         for (Clasificacion clasificacion : TABLA_CLASIFICACION_LEXICA) {
+
+            //TODO: ELIMINAR VERIFICACION DE DUPLICADOS PORQUE SERA HASHSET
 
             // ◂ ◂ ◂ ◂ Evitamos duplicados y lo almacenamos ▸ ▸ ▸ ▸ //
             if (!PRIORIDAD_CLASIFICACION.contains(clasificacion.clasificacion)) {
@@ -74,6 +79,12 @@ public class Lexic {
             resultado += token + "\n";
         }
 
+        resultado += "\n⧖ ⧗ ⧖ ⧗ ⧖ ⧗ ⧖ ⧗ ⧖ ⧗ ⧖ ⧗ ⧖ ⧗ ⧖ ⧗ ⧖ ⧗ ⧖  TABLA DE TOKENS COMPLETA ⧖ ⧗ ⧖ ⧗ ⧖ ⧗ ⧖ ⧗ ⧖ ⧗ ⧖ ⧗ ⧖ ⧗ ⧖ ⧗ ⧖ ⧗ ⧖\n";
+
+        for (Token token : TABLA_DE_TOKENS) {
+            resultado += token + "\n";
+        }
+
         return resultado;
     }
 
@@ -85,7 +96,7 @@ public class Lexic {
      * @param lexema Nombre propio, cadena, palabra que NO ESTE VACIA.
      * @return Clasificacion lexica que pertenece a dicho lexema.
      */
-    public Clasificacion queClasificacionEs(String lexema) {
+    public Clasificacion getClasificacionLexica(String lexema) {
         for (Clasificacion clasificacion : TABLA_CLASIFICACION_LEXICA) {
             try {
 
@@ -116,13 +127,18 @@ public class Lexic {
             return new TokenError(lexema, numDeLinea);
         }
 
+        // ◂ ◂ ◂ ◂ Obtenemos la clasificacion lexica que pertenece a ese lexema ▸ ▸ ▸ ▸ //
+        Clasificacion lexemaClasificado = getClasificacionLexica(lexema);
+
+        //TODO: Obtener numeros de linea por cada instancia de ese identificador y almacenarlo en el objeto Simbolo
+
         // ◂ ◂ ◂ ◂ Asignar numero de atributo en cada identificador diferente comenzando desde su atributo base ▸ ▸ ▸ ▸ //
-        if (queClasificacionEs(lexema).clasificacion.equals(getPrioridadLexica(-1))) {
+        if (lexemaClasificado.clasificacion.equals(getPrioridadLexica(-1))) {
             numIdentificadores++;
-            return new Token(lexema, queClasificacionEs(lexema).atributo + numIdentificadores);
+            return new Token(lexema, lexemaClasificado.clasificacion, lexemaClasificado.atributo + numIdentificadores, numDeLinea);
         }
 
-        return new Token(lexema, queClasificacionEs(lexema).atributo);
+        return new Token(lexema, lexemaClasificado.clasificacion, lexemaClasificado.atributo, numDeLinea);
     }
 
     /**
@@ -150,12 +166,34 @@ public class Lexic {
      */
     public void almacenarSimbolo(Token token) {
 
+        //TODO: ELIMINAR VERIFICACION DE DUPLICADOS PORQUE SERA HASHSET
+
         // ◂ ◂ ◂ ◂ ¿Es identificador? se almacena sin repetir en caso que lo sea ▸ ▸ ▸ ▸ //
-        if (queClasificacionEs(token.LEXEMA).clasificacion.equals(getPrioridadLexica(-1))) {
+        if (getClasificacionLexica(token.LEXEMA).clasificacion.equals(getPrioridadLexica(-1))) {
             if (TABLA_SIMBOLOS.isEmpty() || !TABLA_SIMBOLOS.contains(token)) {
+                //TODO: UTILIZAR ESE TOKEN PARA INSTANCIAR UN NUEVO SIMBOLO
                 TABLA_SIMBOLOS.add(token);
             }
         }
+    }
+
+    /**
+     * Metodo que almacena tokens en su respectiva tabla de tokens.
+     *
+     * @param token Token generado con atributo y lexema.
+     */
+    public void almacenarToken(Token token) {
+
+        // ◂ ◂ ◂ ◂ TODO: Si el token ya se encuentra en la tabla de simbolos, actualizar campos ▸ ▸ ▸ ▸ //
+        if (TABLA_SIMBOLOS.contains(token)) {
+
+            // ◂ ◂ ◂ ◂ Almacenamos el token con el atributo de su tabla de simbolos ▸ ▸ ▸ ▸ //
+            TABLA_DE_TOKENS.add(new Token(token.LEXEMA, token.CLASIFICACION_LEXICA, getSimbolo(token).ATRIBUTO, token.LINEA_DE_CODIGO));
+
+        } else {
+            TABLA_DE_TOKENS.add(token);
+        }
+
     }
 
     /**
@@ -165,6 +203,30 @@ public class Lexic {
      */
     public LinkedList<Token> getTABLA_SIMBOLOS() {
         return TABLA_SIMBOLOS;
+    }
+
+    /**
+     * Funcion que devuelve el un simbolo existente de la tabla de simbolos.
+     *
+     * @param token_simbolo Token que puede estar en la tabla de simbolos
+     * @return Simbolo de la tabla de simbolos.
+     */
+    public Token getSimbolo(Token token_simbolo) {
+        for (Token simbolo : TABLA_SIMBOLOS) {
+            if (simbolo.equals(token_simbolo)) {
+                return simbolo;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Metodo que devuelve la tabla de tokens del analizador lexico
+     *
+     * @return Tabla de tokens actual.
+     */
+    public LinkedList<Token> getTABLA_DE_TOKENS() {
+        return TABLA_DE_TOKENS;
     }
 }
 
