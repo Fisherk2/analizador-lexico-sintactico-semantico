@@ -182,6 +182,12 @@ public class Lexic {
         return getClasificacionLexica(String.valueOf(caracter)).atributo >= 0 && getClasificacionLexica(String.valueOf(caracter)).atributo < 300;
     }
 
+    public boolean esCaracterEspecial(String caracterEspecialCompuesto) {
+
+        // ◂ ◂ ◂ ◂ Los caracteres simples tendran un rango entre 0 a 255, y los especiales adicionales del 256 al 299 ▸ ▸ ▸ ▸ //
+        return getClasificacionLexica(caracterEspecialCompuesto).atributo >= 0 && getClasificacionLexica(caracterEspecialCompuesto).atributo < 300;
+    }
+
     /**
      * Funcion que evalua si el caracter ingresado es un caracter blanco (Espacio, saltos de linea, retorno de carro, tabuladores...).
      *
@@ -237,5 +243,6 @@ public class Lexic {
             return false;
         }
     }
+
 }
 

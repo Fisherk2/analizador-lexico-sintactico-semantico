@@ -7,7 +7,7 @@
   "T":
   ["Programa","Inicio","Fin","Leer","Escribir","Si","Entonces","Sino",
     "Identificadores","Numeros enteros","Numeros flotantes","Entero","Real",
-    "=","(",")",";",",","+","-","/","*",">","<"
+    "=","(",")",";",",","+","-","/","*",">","<","==","<>"
   ],
   "S":"inicio",
   "P":
@@ -43,8 +43,8 @@
     {"id": 29,"N": "operador aritmetico", "NuT": ["*"]},
     {"id": 30,"N": "operador booleano", "NuT": [">"]},
     {"id": 31,"N": "operador booleano", "NuT": ["<"]},
-    {"id": 32,"N": "operador booleano", "NuT": ["<",">"]},
-    {"id": 33,"N": "operador booleano", "NuT": ["=","="]},
+    {"id": 32,"N": "operador booleano", "NuT": ["<>"]},
+    {"id": 33,"N": "operador booleano", "NuT": ["=="]},
     {"id": 34,"N": "inicio", "NuT": ["programa"]}
   ]
 }

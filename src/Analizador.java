@@ -293,8 +293,18 @@ public class Analizador {
 
 
         } else {
-            // ◂ ◂ ◂ ◂ Si es un caracter especial, se trata igual como lexema de un solo caracter ▸ ▸ ▸ ▸ //
-            eof = bof + 1;
+            // ◂ ◂ ◂ ◂ Si es un caracter especial, intentamos detectar una secuencia de caracteres especiales ▸ ▸ ▸ ▸ //
+            eof = bof;
+
+            // ◂ ◂ ◂ ◂ Continuamos mientras los caracteres sean especiales ▸ ▸ ▸ ▸ //
+            while (eof < linea.length() && LEXICO.esCaracterEspecial(linea.charAt(eof))) {
+                eof++;
+            }
+
+            // ◂ ◂ ◂ ◂ Si no es un caracter especial compuesto válido, generamos el lexema a un solo caracter ▸ ▸ ▸ ▸ //
+            if (!LEXICO.esCaracterEspecial(linea.substring(bof, eof))) {
+                eof = bof + 1;
+            }
 
         }
 
