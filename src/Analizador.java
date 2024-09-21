@@ -1,5 +1,7 @@
 import lexico.Lexic;
 import lexico.Token;
+import semantico.Semantic;
+import semantico.Simbolo;
 import sintactico.Syntax;
 
 import java.util.LinkedList;
@@ -15,32 +17,34 @@ public class Analizador {
 
     private final Lexic LEXICO;
     private final Syntax SINTACTICO;
+    private final Semantic SEMANTICO;
+
     private Stack<String> stackDriver;
     private LinkedList<String> lineasCodigoFuente;
-
     private boolean hayError;
     private int numLineaCodigo;
     private int bof;
     private int eof;
 
-
     /**
-     * Clase que analiza el codigo fuente utilizando un analizador lexico y sintactico.
+     * Clase que analiza el codigo fuente utilizando un analizador lexico, sintactico y semantico.
      *
-     * @param analizador_lexer  Analizador lexico.
-     * @param analizador_parser Analizador sintactico.
+     * @param analizador_lexer    Analizador lexico.
+     * @param analizador_parser   Analizador sintactico.
+     * @param analizador_semantic Analizador semantico.
      */
-    public Analizador(Lexic analizador_lexer, Syntax analizador_parser) {
+    public Analizador(Lexic analizador_lexer, Syntax analizador_parser, Semantic analizador_semantic) {
 
         LEXICO = analizador_lexer;
         SINTACTICO = analizador_parser;
+        SEMANTICO = analizador_semantic;
 
     }
 
     //▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼ PROCESO DE ANALISIS DE CODIGO FUENTE ▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼//
 
     /**
-     * Metodo que analiza lexica y sintacticamente codigos fuente.
+     * Metodo que analiza lexica, sintacticamente y semanticamente codigos fuente.
      *
      * @param codigo Texto plano donde se almacena el codigo fuente.
      */
@@ -98,7 +102,7 @@ public class Analizador {
         System.out.println("2) Asigne a [x] el símbolo en la parte alta de la pila: " + x);
 
         // ◂ ◂ ◂ ◂ Asigne a [a] el token de entrada ▸ ▸ ▸ ▸ //
-        Token entrada_a = pedirToken();
+        Token entrada_a = pedirToken(); //TODO: CADA QUE PIDAN UN TOKEN, VERIFICAR EN QUE INDICE DE LA GRAMATICA SE ENCUENTRA
         int a = SINTACTICO.obtenerIndiceTerminal(convertirATerminal(entrada_a));
         System.out.println("3) Asigne a [a] el token de entrada: " + entrada_a + " [a]: " + a);
 
@@ -153,7 +157,7 @@ public class Analizador {
                     System.out.println("11) Hacemos Pop a " + stackDriver.peek());
                     stackDriver.pop();
                     // ◂ ◂ ◂ ◂ a = scanner() ▸ ▸ ▸ ▸ //
-                    entrada_a = pedirToken();
+                    entrada_a = pedirToken(); //TODO: CADA QUE PIDAN UN TOKEN, VERIFICAR EN QUE INDICE DE LA GRAMATICA SE ENCUENTRA
                     a = SINTACTICO.obtenerIndiceTerminal(convertirATerminal(entrada_a));
                     System.out.println("12) Pedimos proximo token de entrada: " + entrada_a + " [a]: " + a);
 
@@ -173,7 +177,7 @@ public class Analizador {
 
             System.out.println("☲☴☲☱☲☴☲☱☲☴☲☱☲☴☲☱☲☴☲☱☲☴☲☱☲☴☲☱☲☴☲☱☲ TABLA DE SIMBOLOS ☲☱☲☴☲☱☲☴☲☱☲☴☲☱☲☴☲☱☲☴☲☱☲☴☲☱☲☴☲☱☲☴☲");
 
-            for (Token simbolo : LEXICO.getTABLA_SIMBOLOS()) {
+            for (Simbolo simbolo : SEMANTICO.getTABLA_DE_SIMBOLOS()) {
                 System.out.println(simbolo);
             }
 
@@ -272,18 +276,18 @@ public class Analizador {
     private Token extraerToken(String linea, int numLinea) {
 
         // ◂ ◂ ◂ ◂ Recorremos caracteres blancos hasta encontrar uno que no lo sea ▸ ▸ ▸ ▸ //
-        while (bof < linea.length() && esBlanco(linea.charAt(bof))) {
+        while (bof < linea.length() && LEXICO.esBlanco(linea.charAt(bof))) {
             bof++;
         }
 
         // ◂ ◂ ◂ ◂ ¿Es una letra o digito? ▸ ▸ ▸ ▸ //
-        if (!esCaracterEspecial(linea.charAt(bof)) && !esBlanco(linea.charAt(bof))) {
+        if (!LEXICO.esCaracterEspecial(linea.charAt(bof)) && !LEXICO.esBlanco(linea.charAt(bof))) {
 
             // ◂ ◂ ◂ ◂ Igualamos apuntadores para recorrer la cinta ▸ ▸ ▸ ▸ //
             eof = bof;
 
             // ◂ ◂ ◂ ◂ Recorrera caracteres hasta terminar la linea, encontrar algun caracter especial o un blanco ▸ ▸ ▸ ▸ //
-            while (eof < linea.length() && !esCaracterEspecial(linea.charAt(eof)) && !esBlanco(linea.charAt(eof))) {
+            while (eof < linea.length() && !LEXICO.esCaracterEspecial(linea.charAt(eof)) && !LEXICO.esBlanco(linea.charAt(eof))) {
                 eof++;
             }
 
@@ -302,33 +306,34 @@ public class Analizador {
 
         // ◂ ◂ ◂ ◂ Generamos Token y lo almacenamos en la tabla de simbolos y tokens ▸ ▸ ▸ ▸ //
         Token token = LEXICO.crearToken(subcadena, numLinea);
-        LEXICO.almacenarSimbolo(token);
-        LEXICO.almacenarToken(token);
+        almacenarTablas(token);
 
         // ◂ ◂ ◂ ◂ Damos el token generado con esa subcadena ▸ ▸ ▸ ▸ //
         return token;
     }
 
     /**
-     * Funcion que verifica si el caracter ingresado forma parte del alfabeto de caracteres simples del lenguaje.
+     * Funcion que almacena el token generado en las tablas de tokens y de simbolos.
      *
-     * @param caracter Caracter a evaluar.
-     * @return ¿Forma parte del alfabeto de caracteres simples del lenguaje?.
+     * @param token Token generado.
      */
-    private boolean esCaracterEspecial(char caracter) {
+    private void almacenarTablas(Token token) {
 
-        // ◂ ◂ ◂ ◂ Los caracteres simples siempre seran la SEGUNDA PRIORIDAD de la tabla de clasificacion lexica ▸ ▸ ▸ ▸ //
-        return LEXICO.getClasificacionLexica(String.valueOf(caracter)).clasificacion.equals(LEXICO.getPrioridadLexica(1));
-    }
+        // ◂ ◂ ◂ ◂ ¿Es identificador o constante numerica? se almacena ▸ ▸ ▸ ▸ //
+        if (LEXICO.esIdentificador(token.LEXEMA)) {
+            SEMANTICO.almacenarSimbolo(token);
+        }
 
-    /**
-     * Funcion que evalua si el caracter ingresado es un caracter blanco (Espacio, saltos de linea, retorno de carro, tabuladores...).
-     *
-     * @param caracter Caracter a revisar.
-     * @return ¿Es un caracter blanco?
-     */
-    private boolean esBlanco(char caracter) {
-        return caracter == ' ' || caracter == '\n' || caracter == '\t' || caracter == '\r';
+        if (LEXICO.esConstanteNumerica(token.LEXEMA)) {
+            SEMANTICO.almacenarSimbolo(token, token.LEXEMA);
+        }
+
+        // ◂ ◂ ◂ ◂ Si ya se encuentra en la tabla de simbolos, almacenamos el token con el atributo de su tabla de simbolos ▸ ▸ ▸ ▸ //
+        if (SEMANTICO.contieneTablaSimbolos(token.LEXEMA)) {
+            LEXICO.almacenarToken(new Token(token.LEXEMA, token.CLASIFICACION_LEXICA, SEMANTICO.getSimbolo(token).getATRIBUTO(), token.LINEA_DE_CODIGO));
+        } else {
+            LEXICO.almacenarToken(token);
+        }
     }
 
 }

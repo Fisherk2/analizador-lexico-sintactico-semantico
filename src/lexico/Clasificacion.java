@@ -1,5 +1,7 @@
 package lexico;
 
+import java.util.Objects;
+
 /**
  * Clase que almacena los atributos de la tabla de clasificacion lexica.
  */
@@ -36,5 +38,20 @@ public class Clasificacion {
     @Override
     public String toString() {
         return "Clasificacion: " + clasificacion + " --> [" + regex + "] [" + atributo + "]";
+    }
+
+    //▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼ EQUALS POR ATRIBUTO ▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼//
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Clasificacion that = (Clasificacion) o;
+        return atributo == that.atributo;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(atributo);
     }
 }

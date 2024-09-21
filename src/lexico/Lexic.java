@@ -2,6 +2,8 @@ package lexico;
 
 import lenguaje.Automata;
 
+import java.math.BigDecimal;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.regex.PatternSyntaxException;
 
@@ -12,30 +14,27 @@ public class Lexic {
 
     //▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼ VARIABLES ▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼//
     private final Automata AFN;
-    private final LinkedList<String> PRIORIDAD_CLASIFICACION;
     private final Clasificacion[] TABLA_CLASIFICACION_LEXICA;
     private final LinkedList<Token> TABLA_DE_TOKENS;
-    //TODO: Hacerlos HASHSET
-    private final LinkedList<Clasificacion> TABLA_PALABRAS_RESERVADAS;
-    private final LinkedList<Token> TABLA_SIMBOLOS; //TODO: CAMBIAR CLASE TOKEN POR CLASE SIMBOLO
-
+    private final LinkedHashSet<Clasificacion> TABLA_PALABRAS_RESERVADAS;
+    private final LinkedHashSet<String> PRIORIDAD_CLASIFICACION;
     private int numIdentificadores;
 
     /**
-     * Clase que almacena las propiedades de un analizador lexico dependiendo del automata y tabla de clasificacion lexica.
+     * Clase que almacena las propiedades de un analizador lexico dependiendo de las palabras que acepta el lenguaje.
      *
      * @param automata                   Automata finito no determinista.
      * @param tabla_clasificacion_lexica Tabla de clasificacion lexica que contenga descripcion de clasificacion, regex y atributo.
      * @implNote La tabla de clasificacion lexica DEBE ESTAR ORDENADO DEPENDIENDO DE LA PRIORIDAD DE CLASIFICACION LEXICA,
-     * por lo tanto, las PRIMERAS clasificaciones deben ser palabras reservadas, en SEGUNDO los caracteres simples, y
-     * AL FINAL de la tabla, siempre debe ir los identificadores.
+     * por lo tanto, las PRIMERAS clasificaciones deben ser palabras reservadas, y AL FINAL de la tabla,
+     * siempre debe ir los identificadores, el orden de las demas clasificaciones dependera mucho
+     * del diseño del analizador lexico.
      */
     public Lexic(Automata automata, Clasificacion[] tabla_clasificacion_lexica) {
 
-        TABLA_PALABRAS_RESERVADAS = new LinkedList<>();
-        TABLA_SIMBOLOS = new LinkedList<>();
+        TABLA_PALABRAS_RESERVADAS = new LinkedHashSet<>();
         TABLA_DE_TOKENS = new LinkedList<>();
-        PRIORIDAD_CLASIFICACION = new LinkedList<>();
+        PRIORIDAD_CLASIFICACION = new LinkedHashSet<>();
         AFN = automata;
         TABLA_CLASIFICACION_LEXICA = tabla_clasificacion_lexica;
 
@@ -43,20 +42,13 @@ public class Lexic {
 
         // ◂ ◂ ◂ ◂ Almacenamos clasificaciones en orden de prioridad sin duplicados ▸ ▸ ▸ ▸ //
         for (Clasificacion clasificacion : TABLA_CLASIFICACION_LEXICA) {
-
-            //TODO: ELIMINAR VERIFICACION DE DUPLICADOS PORQUE SERA HASHSET
-
-            // ◂ ◂ ◂ ◂ Evitamos duplicados y lo almacenamos ▸ ▸ ▸ ▸ //
-            if (!PRIORIDAD_CLASIFICACION.contains(clasificacion.clasificacion)) {
-                PRIORIDAD_CLASIFICACION.add(clasificacion.clasificacion);
-            }
+            PRIORIDAD_CLASIFICACION.add(clasificacion.clasificacion);
         }
 
         // ◂ ◂ ◂ ◂ Almacenamos las palabras reservadas ▸ ▸ ▸ ▸ //
         for (Clasificacion clasificacion : TABLA_CLASIFICACION_LEXICA) {
 
-            // ◂ ◂ ◂ ◂ La PRIMER PRIORIDAD de la tabla de clasificacion lexica siempre seran palabras reservadas ▸ ▸ ▸ ▸ //
-            if (clasificacion.clasificacion.equals(getPrioridadLexica(0))) {
+            if (esPalabraReservada(clasificacion.regex)) {
                 TABLA_PALABRAS_RESERVADAS.add(clasificacion);
             }
         }
@@ -67,16 +59,16 @@ public class Lexic {
 
         String resultado = "\n▼ △ ▼ △ ▼ △ ▼ △ ▼ △ ▼ △ ▼ △ ▼ △ ▼ △ ▼ △ ▼ LEXICO ▼ △ ▼ △ ▼ △ ▼ △ ▼ △ ▼ △ ▼ △ ▼ △ ▼ △ ▼ △ ▼\n";
 
-        resultado += "\n⧖ ⧗ ⧖ ⧗ ⧖ ⧗ ⧖ ⧗ ⧖ ⧗ ⧖ ⧗ ⧖ ⧗ ⧖ ⧗ ⧖ ⧗ ⧖  TABLA DE PALABRAS RESERVADAS ⧖ ⧗ ⧖ ⧗ ⧖ ⧗ ⧖ ⧗ ⧖ ⧗ ⧖ ⧗ ⧖ ⧗ ⧖ ⧗ ⧖ ⧗ ⧖\n";
+        resultado += "\n⧖ ⧗ ⧖ ⧗ ⧖ ⧗ ⧖ ⧗ ⧖ ⧗ ⧖ ⧗ ⧖ ⧗ ⧖ ⧗ ⧖ ⧗ ⧖  TABLA DE CLASIFICACION LEXICA ⧖ ⧗ ⧖ ⧗ ⧖ ⧗ ⧖ ⧗ ⧖ ⧗ ⧖ ⧗ ⧖ ⧗ ⧖ ⧗ ⧖ ⧗ ⧖\n";
 
-        for (Clasificacion clasificacion : TABLA_PALABRAS_RESERVADAS) {
+        for (Clasificacion clasificacion : TABLA_CLASIFICACION_LEXICA) {
             resultado += clasificacion + "\n";
         }
 
-        resultado += "\n⧖ ⧗ ⧖ ⧗ ⧖ ⧗ ⧖ ⧗ ⧖ ⧗ ⧖ ⧗ ⧖ ⧗ ⧖ ⧗ ⧖ ⧗ ⧖  TABLA DE SIMBOLOS COMPLETA ⧖ ⧗ ⧖ ⧗ ⧖ ⧗ ⧖ ⧗ ⧖ ⧗ ⧖ ⧗ ⧖ ⧗ ⧖ ⧗ ⧖ ⧗ ⧖\n";
+        resultado += "\n⧖ ⧗ ⧖ ⧗ ⧖ ⧗ ⧖ ⧗ ⧖ ⧗ ⧖ ⧗ ⧖ ⧗ ⧖ ⧗ ⧖ ⧗ ⧖  TABLA DE PALABRAS RESERVADAS ⧖ ⧗ ⧖ ⧗ ⧖ ⧗ ⧖ ⧗ ⧖ ⧗ ⧖ ⧗ ⧖ ⧗ ⧖ ⧗ ⧖ ⧗ ⧖\n";
 
-        for (Token token : TABLA_SIMBOLOS) {
-            resultado += token + "\n";
+        for (Clasificacion clasificacion : TABLA_PALABRAS_RESERVADAS) {
+            resultado += "[" + clasificacion.regex + "][" + clasificacion.atributo + "]" + "\n";
         }
 
         resultado += "\n⧖ ⧗ ⧖ ⧗ ⧖ ⧗ ⧖ ⧗ ⧖ ⧗ ⧖ ⧗ ⧖ ⧗ ⧖ ⧗ ⧖ ⧗ ⧖  TABLA DE TOKENS COMPLETA ⧖ ⧗ ⧖ ⧗ ⧖ ⧗ ⧖ ⧗ ⧖ ⧗ ⧖ ⧗ ⧖ ⧗ ⧖ ⧗ ⧖ ⧗ ⧖\n";
@@ -88,7 +80,17 @@ public class Lexic {
         return resultado;
     }
 
+
     //▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼ GETTERS & SETTERS ▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼//
+
+    /**
+     * Metodo que almacena tokens en su respectiva tabla de tokens.
+     *
+     * @param token Token generado con atributo y lexema.
+     */
+    public void almacenarToken(Token token) {
+        TABLA_DE_TOKENS.add(token);
+    }
 
     /**
      * Funcion que sirve para saber que tipo de clasificacion lexica pertenece al lexema procesado.
@@ -130,10 +132,8 @@ public class Lexic {
         // ◂ ◂ ◂ ◂ Obtenemos la clasificacion lexica que pertenece a ese lexema ▸ ▸ ▸ ▸ //
         Clasificacion lexemaClasificado = getClasificacionLexica(lexema);
 
-        //TODO: Obtener numeros de linea por cada instancia de ese identificador y almacenarlo en el objeto Simbolo
-
         // ◂ ◂ ◂ ◂ Asignar numero de atributo en cada identificador diferente comenzando desde su atributo base ▸ ▸ ▸ ▸ //
-        if (lexemaClasificado.clasificacion.equals(getPrioridadLexica(-1))) {
+        if (esIdentificador(lexema)) {
             numIdentificadores++;
             return new Token(lexema, lexemaClasificado.clasificacion, lexemaClasificado.atributo + numIdentificadores, numDeLinea);
         }
@@ -147,77 +147,15 @@ public class Lexic {
      * @param nivel_de_prioridad Nivel de prioridad donde el 0 es el mas importante.
      * @return Titulo de la clasificacion lexica perteneciente a ese nivel de prioridad.
      * @implNote 0 = Palabras reservadas,
-     * 1 = Caracteres Simples,. . .
      * n-1 ó n < 0 = Identificadores.
      */
     public String getPrioridadLexica(int nivel_de_prioridad) {
 
         if (nivel_de_prioridad >= PRIORIDAD_CLASIFICACION.size() || nivel_de_prioridad < 0) {
-            return PRIORIDAD_CLASIFICACION.getLast();
+            return new LinkedList<>(PRIORIDAD_CLASIFICACION).getLast();
         }
 
-        return PRIORIDAD_CLASIFICACION.get(nivel_de_prioridad);
-    }
-
-    /**
-     * Metodo que almacena Tokens en la tabla de simbolos.
-     *
-     * @param token Token con atributo y lexema.
-     */
-    public void almacenarSimbolo(Token token) {
-
-        //TODO: ELIMINAR VERIFICACION DE DUPLICADOS PORQUE SERA HASHSET
-
-        // ◂ ◂ ◂ ◂ ¿Es identificador? se almacena sin repetir en caso que lo sea ▸ ▸ ▸ ▸ //
-        if (getClasificacionLexica(token.LEXEMA).clasificacion.equals(getPrioridadLexica(-1))) {
-            if (TABLA_SIMBOLOS.isEmpty() || !TABLA_SIMBOLOS.contains(token)) {
-                //TODO: UTILIZAR ESE TOKEN PARA INSTANCIAR UN NUEVO SIMBOLO
-                TABLA_SIMBOLOS.add(token);
-            }
-        }
-    }
-
-    /**
-     * Metodo que almacena tokens en su respectiva tabla de tokens.
-     *
-     * @param token Token generado con atributo y lexema.
-     */
-    public void almacenarToken(Token token) {
-
-        // ◂ ◂ ◂ ◂ TODO: Si el token ya se encuentra en la tabla de simbolos, actualizar campos ▸ ▸ ▸ ▸ //
-        if (TABLA_SIMBOLOS.contains(token)) {
-
-            // ◂ ◂ ◂ ◂ Almacenamos el token con el atributo de su tabla de simbolos ▸ ▸ ▸ ▸ //
-            TABLA_DE_TOKENS.add(new Token(token.LEXEMA, token.CLASIFICACION_LEXICA, getSimbolo(token).ATRIBUTO, token.LINEA_DE_CODIGO));
-
-        } else {
-            TABLA_DE_TOKENS.add(token);
-        }
-
-    }
-
-    /**
-     * Metodo que devuelve la tabla de simbolos del analizador lexico.
-     *
-     * @return Tabla de simbolos actual.
-     */
-    public LinkedList<Token> getTABLA_SIMBOLOS() {
-        return TABLA_SIMBOLOS;
-    }
-
-    /**
-     * Funcion que devuelve el un simbolo existente de la tabla de simbolos.
-     *
-     * @param token_simbolo Token que puede estar en la tabla de simbolos
-     * @return Simbolo de la tabla de simbolos.
-     */
-    public Token getSimbolo(Token token_simbolo) {
-        for (Token simbolo : TABLA_SIMBOLOS) {
-            if (simbolo.equals(token_simbolo)) {
-                return simbolo;
-            }
-        }
-        return null;
+        return new LinkedList<>(PRIORIDAD_CLASIFICACION).get(nivel_de_prioridad);
     }
 
     /**
@@ -227,6 +165,77 @@ public class Lexic {
      */
     public LinkedList<Token> getTABLA_DE_TOKENS() {
         return TABLA_DE_TOKENS;
+    }
+
+    //▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼ VALIDACIONES ▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼//
+
+    /**
+     * Funcion que verifica si el caracter ingresado forma parte del alfabeto de caracteres simples del lenguaje.
+     *
+     * @param caracter Caracter a evaluar.
+     * @return ¿Forma parte del alfabeto de caracteres simples del lenguaje?.
+     * @implNote Incluye otros caracteres que consideres especiales que comiencen desde el atributo 256 hasta el 299.
+     */
+    public boolean esCaracterEspecial(char caracter) {
+
+        // ◂ ◂ ◂ ◂ Los caracteres simples tendran un rango entre 0 a 255, y los especiales adicionales del 256 al 299 ▸ ▸ ▸ ▸ //
+        return getClasificacionLexica(String.valueOf(caracter)).atributo >= 0 && getClasificacionLexica(String.valueOf(caracter)).atributo < 300;
+    }
+
+    /**
+     * Funcion que evalua si el caracter ingresado es un caracter blanco (Espacio, saltos de linea, retorno de carro, tabuladores...).
+     *
+     * @param caracter Caracter a revisar.
+     * @return ¿Es un caracter blanco?
+     */
+    public boolean esBlanco(char caracter) {
+        return caracter == ' ' || caracter == '\n' || caracter == '\t' || caracter == '\r';
+    }
+
+    /**
+     * Funcion que evalua si el lexema pertenece a la clasificacion lexica de los identificadores.
+     *
+     * @param lexema Nombre propio del token.
+     * @return ¿Es un identificador?
+     */
+    public boolean esIdentificador(String lexema) {
+
+        // ◂ ◂ ◂ ◂ Los identificadores SIEMPRE estaran al fondo de la tabla de clasificacion lexica ▸ ▸ ▸ ▸ //
+        return getClasificacionLexica(lexema).clasificacion.equals(getPrioridadLexica(-1));
+    }
+
+    /**
+     * Funcion que evalua si el lexema pertenece a la clasificacion lexica de las palabras reservadas.
+     *
+     * @param lexema Nombre propio del token.
+     * @return ¿Es una palabra reservada?
+     */
+    public boolean esPalabraReservada(String lexema) {
+
+        // ◂ ◂ ◂ ◂ Las palabras reservadas SIEMPRE seran los primeros elementos de la tabla de clasificacion lexica ▸ ▸ ▸ ▸ //
+        return getClasificacionLexica(lexema).clasificacion.equals(getPrioridadLexica(0));
+    }
+
+    /**
+     * Funcion que evalua si el lexema pertenece a una constante numerica.
+     *
+     * @param lexema Nombre propio del token.
+     * @return ¿Es una constante numerica?
+     */
+    public boolean esConstanteNumerica(String lexema) {
+
+        // ◂ ◂ ◂ ◂ En caso de que el lenguaje acepte coma en vez de punto en cualquier numero decimal ▸ ▸ ▸ ▸ //
+        lexema = lexema.replace(",", ".");
+
+        try {
+
+            // ◂ ◂ ◂ ◂ En caso de que se manejen numeros enormes ▸ ▸ ▸ ▸ //
+            new BigDecimal(lexema);
+
+            return true;
+        } catch (NumberFormatException error) {
+            return false;
+        }
     }
 }
 

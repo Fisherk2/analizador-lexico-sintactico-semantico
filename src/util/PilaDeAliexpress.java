@@ -59,7 +59,6 @@ public class PilaDeAliexpress {
         return cima.dato;
     }
 
-    // Método para verificar si la pila está vacía
     public boolean empty() {
         return cima == null;
     }

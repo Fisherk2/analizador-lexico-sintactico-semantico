@@ -336,56 +336,6 @@ public class Syntax {
     }
 
     /**
-     * Funcion que devuelve el conjunto de First del simbolo no terminal.
-     *
-     * @param simbolo_no_terminal Simbolo Terminal o NO TERMINAL DE PREFERENCIA que pertenece a ese First.
-     * @return Conjunto del First del simbolo no terminal, o solo una lista con un simbolo terminal.
-     */
-    private LinkedList<NuT> extraerFirst(NuT simbolo_no_terminal) {
-
-
-        for (FirstFollow first : FIRSTS) {
-            if (first.NO_TERMINAL.equals(simbolo_no_terminal.SIMBOLO)) {
-
-                // ◂ ◂ ◂ ◂ Agregamos el conjunto del First(X) ▸ ▸ ▸ ▸ //
-                return first.CONJUNTO_SIMBOLOS;
-            }
-        }
-
-        LinkedList<NuT> simboloTerminal = new LinkedList<>();
-
-        // ◂ ◂ ◂ ◂ Si se trata de derivar un Terminal, simplemente se devuelve asi mismo. ▸ ▸ ▸ ▸ //
-        simboloTerminal.add(simbolo_no_terminal);
-
-        return simboloTerminal;
-    }
-
-    /**
-     * Funcion que extrae el conjunto de simbolos que pertenece al follow.
-     *
-     * @param simbolo_terminal Simbolo no terminal o TERMINAL DE PREFERENCIA que pertenece a ese follow.
-     * @return Conjunto de simbolos perteneciente al follow, o solo una lista con un simbolo no terminal.
-     */
-    private LinkedList<NuT> extraerFollow(NuT simbolo_terminal) {
-
-        // ◂ ◂ ◂ ◂ Agregamos los simbolos de ese Follow de ese no terminal ▸ ▸ ▸ ▸ //
-        for (FirstFollow follow : FOLLOWS) {
-
-            if (follow.NO_TERMINAL.equals(simbolo_terminal.SIMBOLO)) {
-                return follow.CONJUNTO_SIMBOLOS;
-            }
-
-        }
-
-        LinkedList<NuT> simboloNoTerminal = new LinkedList<>();
-
-        // ◂ ◂ ◂ ◂ Si no encuentra ningun follow, devolvera el no terminal para que se derive mas tarde ▸ ▸ ▸ ▸ //
-        simboloNoTerminal.add(simbolo_terminal);
-
-        return simboloNoTerminal;
-    }
-
-    /**
      * Metodo que agrega First o simbolos del conjunto de ese First: A -> αBβ
      *
      * @param A           Produccion que se le va extraer su First.
@@ -482,110 +432,56 @@ public class Syntax {
         }
     }
 
-//▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼ VALIDACIONES ▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼//
-
-    /**
-     * Funcion que verifica si hay vacios en los conjuntos de First.
-     *
-     * @return Contiene o no vacios en los conjuntos first.
-     */
-    private boolean hayVaciosEnFirsts() {
-
-        for (FirstFollow first : FIRSTS) {
-            for (NuT simbolo : first.CONJUNTO_SIMBOLOS) {
-
-                // ◂ ◂ ◂ ◂ Si existen vacios en los conjuntos de first ▸ ▸ ▸ ▸ //
-                if (simbolo.SIMBOLO.isEmpty()) {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-
-    /**
-     * Funcion que evalua si el conjunto del First(X) contiene o no terminales.
-     *
-     * @param firsts_o_follow Conjunto del First(X).
-     * @return Tiene o no tiene terminales ese conjunto.
-     */
-    private boolean contieneNoTerminales(FirstFollow firsts_o_follow) {
-
-        if (firsts_o_follow.CONJUNTO_SIMBOLOS.isEmpty()) {
-            return false;
-        }
-
-        // ◂ ◂ ◂ ◂ Si contiene NO TERMINALES en el conjunto del First o Follow ▸ ▸ ▸ ▸ //
-        for (NuT nut : firsts_o_follow.CONJUNTO_SIMBOLOS) {
-            if (esNoTerminal(nut.SIMBOLO)) {
-                return true;
-            }
-        }
-
-
-        return false;
-    }
-
-
-    /**
-     * Funcion que verifica si en el conjunto de First o Follows no halla duplicado de no terminales.
-     *
-     * @param conjunto_firsts_o_follows Conjunto de Firsts o Follows.
-     * @param produccion                Produccion de la gramatica.
-     * @return ¿Ya existe ese no terminal en el conjunto de First o Follow?.
-     */
-    private boolean hayFirstFollowDuplicado
-    (LinkedList<FirstFollow> conjunto_firsts_o_follows, String produccion) {
-
-        if (conjunto_firsts_o_follows.isEmpty()) {
-            return false;
-        }
-
-        // ◂ ◂ ◂ ◂ Si existe en el conjunto de First o Follow ▸ ▸ ▸ ▸ //
-        for (FirstFollow firstFollow : conjunto_firsts_o_follows) {
-            if (firstFollow.NO_TERMINAL.equals(produccion)) {
-                return true;
-            }
-        }
-
-        return false;
-
-    }
-
     //▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼ GETTERS ▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼//
 
     /**
-     * Funcion que verifica que el simbolo ingresado es terminal.
+     * Funcion que devuelve el conjunto de First del simbolo no terminal.
      *
-     * @param simbolo_NuT Simbolo terminal o no terminal.
-     * @return Es o no simbolo terminal.
+     * @param simbolo_no_terminal Simbolo Terminal o NO TERMINAL DE PREFERENCIA que pertenece a ese First.
+     * @return Conjunto del First del simbolo no terminal, o solo una lista con un simbolo terminal.
      */
-    public boolean esNoTerminal(String simbolo_NuT) {
+    private LinkedList<NuT> extraerFirst(NuT simbolo_no_terminal) {
 
-        for (String elemento : GRAMATICA.N) {
-            if (elemento.equals(simbolo_NuT)) {
-                return true;
+
+        for (FirstFollow first : FIRSTS) {
+            if (first.NO_TERMINAL.equals(simbolo_no_terminal.SIMBOLO)) {
+
+                // ◂ ◂ ◂ ◂ Agregamos el conjunto del First(X) ▸ ▸ ▸ ▸ //
+                return first.CONJUNTO_SIMBOLOS;
             }
         }
 
-        return false;
+        LinkedList<NuT> simboloTerminal = new LinkedList<>();
+
+        // ◂ ◂ ◂ ◂ Si se trata de derivar un Terminal, simplemente se devuelve asi mismo. ▸ ▸ ▸ ▸ //
+        simboloTerminal.add(simbolo_no_terminal);
+
+        return simboloTerminal;
     }
 
     /**
-     * Funcion que verifica que el simbolo ingresado es terminal.
+     * Funcion que extrae el conjunto de simbolos que pertenece al follow.
      *
-     * @param simbolo_NuT Simbolo terminal o no terminal.
-     * @return Es o no simbolo terminal.
+     * @param simbolo_terminal Simbolo no terminal o TERMINAL DE PREFERENCIA que pertenece a ese follow.
+     * @return Conjunto de simbolos perteneciente al follow, o solo una lista con un simbolo no terminal.
      */
-    public boolean esTerminal(String simbolo_NuT) {
+    private LinkedList<NuT> extraerFollow(NuT simbolo_terminal) {
 
-        for (String elemento : GRAMATICA.T) {
-            if (elemento.equals(simbolo_NuT)) {
-                return true;
+        // ◂ ◂ ◂ ◂ Agregamos los simbolos de ese Follow de ese no terminal ▸ ▸ ▸ ▸ //
+        for (FirstFollow follow : FOLLOWS) {
+
+            if (follow.NO_TERMINAL.equals(simbolo_terminal.SIMBOLO)) {
+                return follow.CONJUNTO_SIMBOLOS;
             }
+
         }
 
-        return false;
+        LinkedList<NuT> simboloNoTerminal = new LinkedList<>();
+
+        // ◂ ◂ ◂ ◂ Si no encuentra ningun follow, devolvera el no terminal para que se derive mas tarde ▸ ▸ ▸ ▸ //
+        simboloNoTerminal.add(simbolo_terminal);
+
+        return simboloNoTerminal;
     }
 
     /**
@@ -656,5 +552,109 @@ public class Syntax {
         }
 
         return new String[]{""};
+    }
+
+    //▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼ VALIDACIONES ▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼//
+
+    /**
+     * Funcion que verifica si hay vacios en los conjuntos de First.
+     *
+     * @return Contiene o no vacios en los conjuntos first.
+     */
+    private boolean hayVaciosEnFirsts() {
+
+        for (FirstFollow first : FIRSTS) {
+            for (NuT simbolo : first.CONJUNTO_SIMBOLOS) {
+
+                // ◂ ◂ ◂ ◂ Si existen vacios en los conjuntos de first ▸ ▸ ▸ ▸ //
+                if (simbolo.SIMBOLO.isEmpty()) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Funcion que evalua si el conjunto del First(X) contiene o no terminales.
+     *
+     * @param firsts_o_follow Conjunto del First(X).
+     * @return Tiene o no tiene terminales ese conjunto.
+     */
+    private boolean contieneNoTerminales(FirstFollow firsts_o_follow) {
+
+        if (firsts_o_follow.CONJUNTO_SIMBOLOS.isEmpty()) {
+            return false;
+        }
+
+        // ◂ ◂ ◂ ◂ Si contiene NO TERMINALES en el conjunto del First o Follow ▸ ▸ ▸ ▸ //
+        for (NuT nut : firsts_o_follow.CONJUNTO_SIMBOLOS) {
+            if (esNoTerminal(nut.SIMBOLO)) {
+                return true;
+            }
+        }
+
+
+        return false;
+    }
+
+
+    /**
+     * Funcion que verifica si en el conjunto de First o Follows no halla duplicado de no terminales.
+     *
+     * @param conjunto_firsts_o_follows Conjunto de Firsts o Follows.
+     * @param produccion                Produccion de la gramatica.
+     * @return ¿Ya existe ese no terminal en el conjunto de First o Follow?.
+     */
+    private boolean hayFirstFollowDuplicado
+    (LinkedList<FirstFollow> conjunto_firsts_o_follows, String produccion) {
+
+        if (conjunto_firsts_o_follows.isEmpty()) {
+            return false;
+        }
+
+        // ◂ ◂ ◂ ◂ Si existe en el conjunto de First o Follow ▸ ▸ ▸ ▸ //
+        for (FirstFollow firstFollow : conjunto_firsts_o_follows) {
+            if (firstFollow.NO_TERMINAL.equals(produccion)) {
+                return true;
+            }
+        }
+
+        return false;
+
+    }
+
+    /**
+     * Funcion que verifica que el simbolo ingresado es terminal.
+     *
+     * @param simbolo_NuT Simbolo terminal o no terminal.
+     * @return Es o no simbolo terminal.
+     */
+    public boolean esNoTerminal(String simbolo_NuT) {
+
+        for (String elemento : GRAMATICA.N) {
+            if (elemento.equals(simbolo_NuT)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Funcion que verifica que el simbolo ingresado es terminal.
+     *
+     * @param simbolo_NuT Simbolo terminal o no terminal.
+     * @return Es o no simbolo terminal.
+     */
+    public boolean esTerminal(String simbolo_NuT) {
+
+        for (String elemento : GRAMATICA.T) {
+            if (elemento.equals(simbolo_NuT)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }
