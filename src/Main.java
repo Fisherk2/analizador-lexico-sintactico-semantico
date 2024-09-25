@@ -7,10 +7,8 @@
  */
 
 import archivos.Fichero;
-import lenguaje.Automata;
-import lenguaje.Gramatica;
+import lenguaje.*;
 import lexico.Lexic;
-import lexico.Clasificacion;
 import semantico.Semantic;
 import sintactico.Syntax;
 
@@ -37,7 +35,10 @@ public class Main {
                 (Gramatica) new Fichero("gramatica.json").deserializar_json(Gramatica.class)
         );
 
-        Semantic semantico = new Semantic();
+        Semantic semantico = new Semantic(
+                (Operadores) new Fichero("operadores.json").deserializar_json(Operadores.class),
+                (Procedencia) new Fichero("procedencia.json").deserializar_json(Procedencia.class)
+        );
 
         Analizador analizador = new Analizador(lexico, sintactico, semantico);
 

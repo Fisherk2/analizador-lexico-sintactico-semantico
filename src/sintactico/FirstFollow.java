@@ -1,7 +1,6 @@
 package sintactico;
 
 import java.util.LinkedList;
-import java.util.Objects;
 
 /**
  * Clase que recibe el conjunto de first o follows de la gramatica.

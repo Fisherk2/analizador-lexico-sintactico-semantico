@@ -228,7 +228,7 @@ public class Analizador {
         }
 
         // ◂ ◂ ◂ ◂ Enviamos el titulo de clasificacion ▸ ▸ ▸ ▸ //
-        return LEXICO.getClasificacionLexica(entrada_a.LEXEMA).clasificacion;
+        return LEXICO.getClasificacionLexica(entrada_a.LEXEMA).NAME;
     }
 
     /**

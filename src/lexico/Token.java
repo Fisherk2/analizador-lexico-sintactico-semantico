@@ -29,9 +29,10 @@ public class Token {
     /**
      * Clase que almacena las propiedades de un Token analizado.
      *
-     * @param lexema          Nombre propio del elemento analizado.
-     * @param atributo        Propiedad numerica que pertenece de la tabla de clasificacion lexica.
-     * @param linea_de_codigo Numero de linea donde se encuentra el lexema analizado.
+     * @param lexema               Nombre propio del elemento analizado.
+     * @param clasificacion_lexica Titulo de la clasificacion lexica que pertenece al elemento analizado.
+     * @param atributo             Propiedad numerica que pertenece de la tabla de clasificacion lexica.
+     * @param linea_de_codigo      Numero de linea donde se encuentra el lexema analizado.
      */
     public Token(String lexema, String clasificacion_lexica, int atributo, int linea_de_codigo) {
         this.LEXEMA = lexema;

@@ -1,9 +1,12 @@
 package semantico;
 
 
+import lenguaje.Operadores;
+import lenguaje.Procedencia;
 import lexico.Token;
 
 import java.util.LinkedHashSet;
+import java.util.LinkedList;
 
 /**
  * Clase que almacena las propiedades de un analizador semantico.
@@ -13,14 +16,22 @@ public class Semantic {
 
     //▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼ VARIABLES ▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼//
     private final LinkedHashSet<Simbolo> TABLA_DE_SIMBOLOS;
-
-    //TODO: Contructor recibe tabla de precedencia para arboles de expresion.
+    private final LinkedList<Sentencia> NOTACIONES;
+    public final Operadores OPERADORES;
+    public final Procedencia VERIFICADOR;
 
     /**
      * Clase que almacena las propiedades de un analizador semantico.
+     *
+     * @param signos_operacionales   Simbolos representativos de los operadores aritmeticos, de asignacion, comparacion y logicas
+     *                               de una sentencia que pertenezcan al lenguaje.
+     * @param verificador_sentencias Objeto que almacena la de verificacion de datos, sentencias y produccion inicial de la gramatica.
      */
-    public Semantic() {
+    public Semantic(Operadores signos_operacionales, Procedencia verificador_sentencias) {
         TABLA_DE_SIMBOLOS = new LinkedHashSet<>();
+        NOTACIONES = new LinkedList<>();
+        this.OPERADORES = signos_operacionales;
+        this.VERIFICADOR = verificador_sentencias;
     }
 
     @Override
@@ -37,6 +48,8 @@ public class Semantic {
         return resultado;
     }
 
+    //▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼ GETTERS & SETTERS ▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼//
+
     /**
      * Metodo que almacena Tokens en la tabla de simbolos por primera vez y actualiza numeros de linea.
      *
@@ -45,7 +58,7 @@ public class Semantic {
     public void almacenarSimbolo(Token token) {
 
         // ◂ ◂ ◂ ◂ ¿Existe en la tabla de simbolos? ▸ ▸ ▸ ▸ //
-        if (getSimbolo(token) == null) {
+        if (!contieneTablaSimbolos(token.LEXEMA)) {
             TABLA_DE_SIMBOLOS.add(new Simbolo(token));
         } else {
             for (Simbolo simbolo : TABLA_DE_SIMBOLOS) {
@@ -66,8 +79,8 @@ public class Semantic {
     public void almacenarSimbolo(Token token, String valor) {
 
         // ◂ ◂ ◂ ◂ ¿Existe en la tabla de simbolos? ▸ ▸ ▸ ▸ //
-        if (getSimbolo(token) == null) {
-            TABLA_DE_SIMBOLOS.add(new Simbolo(token,valor));
+        if (!contieneTablaSimbolos(token.LEXEMA)) {
+            TABLA_DE_SIMBOLOS.add(new Simbolo(token, valor));
         } else {
             for (Simbolo simbolo : TABLA_DE_SIMBOLOS) {
                 if (simbolo.getLEXEMA().equals(token.LEXEMA)) {
@@ -78,15 +91,22 @@ public class Semantic {
         }
     }
 
-    //▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼ GETTERS & SETTERS ▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼//
-
     /**
-     * Metodo que devuelve la tabla de simbolos del analizador lexico.
+     * Metodo que devuelve la tabla de simbolos del analizador semantico.
      *
      * @return Tabla de simbolos actual.
      */
     public LinkedHashSet<Simbolo> getTABLA_DE_SIMBOLOS() {
         return TABLA_DE_SIMBOLOS;
+    }
+
+    /**
+     * Metodo que devuelve la tabla de notaciones del analizador semantico.
+     *
+     * @return Tabla de notaciones actual.
+     */
+    public LinkedList<Sentencia> getNOTACIONES() {
+        return NOTACIONES;
     }
 
     /**

@@ -2,7 +2,6 @@ package archivos;
 
 import lenguaje.Gramatica;
 import com.google.gson.Gson;
-import lenguaje.ProduccionGramatical;
 
 import javax.swing.*;
 import java.io.*;
@@ -125,8 +124,8 @@ public class Fichero {
         LinkedList<String> produccion_dinamica = new LinkedList<>();
         String[] NuT;
         String simbolo = "";
-        LinkedList<ProduccionGramatical> producciones_dinamicas = new LinkedList<>();
-        ProduccionGramatical[] P;
+        LinkedList<Gramatica.Produccion> producciones_dinamicas = new LinkedList<>();
+        Gramatica.Produccion[] P;
 
         LinkedList<String> noTerminalesDinamico = new LinkedList<>();
         String[] N;
@@ -175,7 +174,7 @@ public class Fichero {
 
                 // ◂ ◂ ◂ ◂ Generamos la produccion de la gramatica ▸ ▸ ▸ ▸ //
                 if (produccion_dinamica.isEmpty()) {
-                    producciones_dinamicas.add(new ProduccionGramatical(id, noTerminal, new String[]{""}));
+                    producciones_dinamicas.add(new Gramatica.Produccion(id, noTerminal, new String[]{""}));
                 } else {
 
                     // ◂ ◂ ◂ ◂ Generamos arreglo estatico NuT de la produccion gramatical ▸ ▸ ▸ ▸ //
@@ -191,7 +190,7 @@ public class Fichero {
                     }
 
                     // ◂ ◂ ◂ ◂ Creamos la produccion ▸ ▸ ▸ ▸ //
-                    producciones_dinamicas.add(new ProduccionGramatical(id, noTerminal, NuT));
+                    producciones_dinamicas.add(new Gramatica.Produccion(id, noTerminal, NuT));
                 }
 
                 produccion_dinamica.clear();
@@ -199,21 +198,21 @@ public class Fichero {
         }
 
         // ◂ ◂ ◂ ◂ Generar arreglo estatico de producciones gramaticales ▸ ▸ ▸ ▸ //
-        P = new ProduccionGramatical[producciones_dinamicas.size()];
+        P = new Gramatica.Produccion[producciones_dinamicas.size()];
         for (int i = 0; i < P.length; i++) {
             P[i] = producciones_dinamicas.get(i);
         }
 
         // ◂ ◂ ◂ ◂ Generamos arreglo de simbolos no terminales sin duplicados ▸ ▸ ▸ ▸ //
-        for (ProduccionGramatical produccion : P) {
+        for (Gramatica.Produccion produccion : P) {
             noTerminalesDinamico.add(produccion.N);
         }
 
         N = generarArregloSinDuplicados(noTerminalesDinamico);
 
         // ◂ ◂ ◂ ◂ Generamos arreglo de simbolos terminales sin duplicados ▸ ▸ ▸ ▸ //
-        for (ProduccionGramatical produccion : P) {
-            for (String simboloNuT : produccion.NuT) {
+        for (Gramatica.Produccion produccion : P) {
+            for (String simboloNuT : produccion.NUT) {
 
                 // ◂ ◂ ◂ ◂ Verificamos que el simbolo NuT sea terminal ▸ ▸ ▸ ▸ //
                 if (!noTerminalesDinamico.contains(simboloNuT) && !simboloNuT.isEmpty()) {
@@ -228,8 +227,8 @@ public class Fichero {
         boolean hayRepetido;
         for (String simboloNoTerminal : N) {
             hayRepetido = false;
-            for (ProduccionGramatical produccion : P) {
-                for (String simboloNuT : produccion.NuT) {
+            for (Gramatica.Produccion produccion : P) {
+                for (String simboloNuT : produccion.NUT) {
 
                     // ◂ ◂ ◂ ◂ Verificamos que el simbolo NuT sea igual al no terminal ▸ ▸ ▸ ▸ //
                     if (!simboloNuT.equals(simboloNoTerminal)) {

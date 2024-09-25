@@ -1,4 +1,4 @@
-package lexico;
+package lenguaje;
 
 import java.util.Objects;
 
@@ -12,32 +12,32 @@ public class Clasificacion {
     /**
      * Nombre o titulo de la clasificacion lexica.
      */
-    public final String clasificacion;
+    public final String NAME;
     /**
      * Expresion regular que pertenece a esa clasificacion lexica.
      */
-    public final String regex;
+    public final String REGEX;
     /**
      * Atributo o propiedad que posee la clasificacion lexica.
      */
-    public final int atributo;
+    public final int ATTRIBUTE;
 
     /**
      * Clase que almacena los atributos de la tabla de clasificacion lexica
      *
-     * @param clasificacion Descripcion de que tipo de clasificacion lexica es.
-     * @param regex         Expresion regular que representa esa clasificacion.
-     * @param atributo      Propiedad numerica que pertenece esa clasificacion.
+     * @param nombre   Descripcion de que tipo de clasificacion lexica es.
+     * @param regex    Expresion regular que representa esa clasificacion.
+     * @param atributo Propiedad numerica que pertenece esa clasificacion.
      */
-    public Clasificacion(String clasificacion, String regex, int atributo) {
-        this.clasificacion = clasificacion;
-        this.regex = regex;
-        this.atributo = atributo;
+    public Clasificacion(String nombre, String regex, int atributo) {
+        this.NAME = nombre;
+        this.REGEX = regex;
+        this.ATTRIBUTE = atributo;
     }
 
     @Override
     public String toString() {
-        return "Clasificacion: " + clasificacion + " --> [" + regex + "] [" + atributo + "]";
+        return "Clasificacion: " + NAME + " --> [" + REGEX + "] [" + ATTRIBUTE + "]";
     }
 
     //▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼ EQUALS POR ATRIBUTO ▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼//
@@ -47,11 +47,11 @@ public class Clasificacion {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Clasificacion that = (Clasificacion) o;
-        return atributo == that.atributo;
+        return ATTRIBUTE == that.ATTRIBUTE;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(atributo);
+        return Objects.hashCode(ATTRIBUTE);
     }
 }

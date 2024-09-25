@@ -36,8 +36,8 @@ public class Simbolo {
 
         LEXEMA = token_lexico.LEXEMA;
         ATRIBUTO = token_lexico.ATRIBUTO;
-        tipoDeDato = "N/A";
-        valor = "N/A";
+        tipoDeDato = "";
+        valor = "";
         iteraciones = 1;
         LINEAS.add(token_lexico.LINEA_DE_CODIGO);
 

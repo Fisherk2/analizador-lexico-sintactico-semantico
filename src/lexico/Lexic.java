@@ -1,6 +1,7 @@
 package lexico;
 
 import lenguaje.Automata;
+import lenguaje.Clasificacion;
 
 import java.math.BigDecimal;
 import java.util.LinkedHashSet;
@@ -42,13 +43,13 @@ public class Lexic {
 
         // ◂ ◂ ◂ ◂ Almacenamos clasificaciones en orden de prioridad sin duplicados ▸ ▸ ▸ ▸ //
         for (Clasificacion clasificacion : TABLA_CLASIFICACION_LEXICA) {
-            PRIORIDAD_CLASIFICACION.add(clasificacion.clasificacion);
+            PRIORIDAD_CLASIFICACION.add(clasificacion.NAME);
         }
 
         // ◂ ◂ ◂ ◂ Almacenamos las palabras reservadas ▸ ▸ ▸ ▸ //
         for (Clasificacion clasificacion : TABLA_CLASIFICACION_LEXICA) {
 
-            if (esPalabraReservada(clasificacion.regex)) {
+            if (esPalabraReservada(clasificacion.REGEX)) {
                 TABLA_PALABRAS_RESERVADAS.add(clasificacion);
             }
         }
@@ -68,7 +69,7 @@ public class Lexic {
         resultado += "\n⧖ ⧗ ⧖ ⧗ ⧖ ⧗ ⧖ ⧗ ⧖ ⧗ ⧖ ⧗ ⧖ ⧗ ⧖ ⧗ ⧖ ⧗ ⧖  TABLA DE PALABRAS RESERVADAS ⧖ ⧗ ⧖ ⧗ ⧖ ⧗ ⧖ ⧗ ⧖ ⧗ ⧖ ⧗ ⧖ ⧗ ⧖ ⧗ ⧖ ⧗ ⧖\n";
 
         for (Clasificacion clasificacion : TABLA_PALABRAS_RESERVADAS) {
-            resultado += "[" + clasificacion.regex + "][" + clasificacion.atributo + "]" + "\n";
+            resultado += "[" + clasificacion.REGEX + "][" + clasificacion.ATTRIBUTE + "]" + "\n";
         }
 
         resultado += "\n⧖ ⧗ ⧖ ⧗ ⧖ ⧗ ⧖ ⧗ ⧖ ⧗ ⧖ ⧗ ⧖ ⧗ ⧖ ⧗ ⧖ ⧗ ⧖  TABLA DE TOKENS COMPLETA ⧖ ⧗ ⧖ ⧗ ⧖ ⧗ ⧖ ⧗ ⧖ ⧗ ⧖ ⧗ ⧖ ⧗ ⧖ ⧗ ⧖ ⧗ ⧖\n";
@@ -103,12 +104,12 @@ public class Lexic {
             try {
 
                 // ◂ ◂ Si alguna de las expresiones regulares que se encuentren en las clasificaciones coincide ▸ ▸ //
-                if (lexema.matches(clasificacion.regex)) {
+                if (lexema.matches(clasificacion.REGEX)) {
                     return clasificacion;
                 }
 
             } catch (PatternSyntaxException ex) {
-                System.err.println("ERROR, NO PUEDE ANALIZAR LA EXPRESION REGULAR: " + clasificacion.regex + "\n CORRIJALO PARA CONTINUAR EVALUANDO.");
+                System.err.println("ERROR, NO PUEDE ANALIZAR LA EXPRESION REGULAR: " + clasificacion.REGEX + "\n CORRIJALO PARA CONTINUAR EVALUANDO.");
             }
 
         }
@@ -135,10 +136,10 @@ public class Lexic {
         // ◂ ◂ ◂ ◂ Asignar numero de atributo en cada identificador diferente comenzando desde su atributo base ▸ ▸ ▸ ▸ //
         if (esIdentificador(lexema)) {
             numIdentificadores++;
-            return new Token(lexema, lexemaClasificado.clasificacion, lexemaClasificado.atributo + numIdentificadores, numDeLinea);
+            return new Token(lexema, lexemaClasificado.NAME, lexemaClasificado.ATTRIBUTE + numIdentificadores, numDeLinea);
         }
 
-        return new Token(lexema, lexemaClasificado.clasificacion, lexemaClasificado.atributo, numDeLinea);
+        return new Token(lexema, lexemaClasificado.NAME, lexemaClasificado.ATTRIBUTE, numDeLinea);
     }
 
     /**
@@ -179,13 +180,18 @@ public class Lexic {
     public boolean esCaracterEspecial(char caracter) {
 
         // ◂ ◂ ◂ ◂ Los caracteres simples tendran un rango entre 0 a 255, y los especiales adicionales del 256 al 299 ▸ ▸ ▸ ▸ //
-        return getClasificacionLexica(String.valueOf(caracter)).atributo >= 0 && getClasificacionLexica(String.valueOf(caracter)).atributo < 300;
+        return getClasificacionLexica(String.valueOf(caracter)).ATTRIBUTE >= 0 && getClasificacionLexica(String.valueOf(caracter)).ATTRIBUTE < 300;
     }
 
+    /**
+     * Funcion que verifica si la cadena de caracteres especiales forma parte del alfabeto de caracteres compuestos del lenguaje.
+     * @param caracterEspecialCompuesto lexema con caracteres especiales compuestos.
+     * @return ¿Forma parte del alfabeto de caracteres especiales del lenguaje?
+     */
     public boolean esCaracterEspecial(String caracterEspecialCompuesto) {
 
         // ◂ ◂ ◂ ◂ Los caracteres simples tendran un rango entre 0 a 255, y los especiales adicionales del 256 al 299 ▸ ▸ ▸ ▸ //
-        return getClasificacionLexica(caracterEspecialCompuesto).atributo >= 0 && getClasificacionLexica(caracterEspecialCompuesto).atributo < 300;
+        return getClasificacionLexica(caracterEspecialCompuesto).ATTRIBUTE >= 0 && getClasificacionLexica(caracterEspecialCompuesto).ATTRIBUTE < 300;
     }
 
     /**
@@ -207,7 +213,7 @@ public class Lexic {
     public boolean esIdentificador(String lexema) {
 
         // ◂ ◂ ◂ ◂ Los identificadores SIEMPRE estaran al fondo de la tabla de clasificacion lexica ▸ ▸ ▸ ▸ //
-        return getClasificacionLexica(lexema).clasificacion.equals(getPrioridadLexica(-1));
+        return getClasificacionLexica(lexema).NAME.equals(getPrioridadLexica(-1));
     }
 
     /**
@@ -219,7 +225,7 @@ public class Lexic {
     public boolean esPalabraReservada(String lexema) {
 
         // ◂ ◂ ◂ ◂ Las palabras reservadas SIEMPRE seran los primeros elementos de la tabla de clasificacion lexica ▸ ▸ ▸ ▸ //
-        return getClasificacionLexica(lexema).clasificacion.equals(getPrioridadLexica(0));
+        return getClasificacionLexica(lexema).NAME.equals(getPrioridadLexica(0));
     }
 
     /**

@@ -1,6 +1,5 @@
 package lenguaje;
 
-import javax.swing.*;
 import java.util.LinkedList;
 
 /**
@@ -57,6 +56,7 @@ public class Automata {
 
     /**
      * Funcion que evalua el lexema en base al automata finito no determinista.
+     *
      * @param lexema Nombre propio, cadena, palabra a evaluar.
      * @return Aceptacion o rechazo del lexema devuelto por el automata.
      */
@@ -84,10 +84,10 @@ public class Automata {
             transiciones_disponibles.clear();
 
             // ◂ ◂ Obtenemos las transiciones disponibles para los estados actuales ▸ ▸ //
-            for(String estadoActual: estados_actuales){
-                for(Transicion transicion: delta){
+            for (String estadoActual : estados_actuales) {
+                for (Transicion transicion : delta) {
                     // ◂ Si el estado actual es igual al de la transicion, se agrega a transiciones disponibles ▸ //
-                    if(estadoActual.equalsIgnoreCase(transicion.estadoActual)){
+                    if (estadoActual.equalsIgnoreCase(transicion.estadoActual)) {
                         transiciones_disponibles.add(transicion);
                     }
                 }
@@ -99,14 +99,14 @@ public class Automata {
             }
 
             // ◂ ◂ Encontrar los estados siguientes dependiendo si existe alguna entrada de la transicion ▸ ▸ //
-            for (Transicion transicion: transiciones_disponibles){
-                for(String estadoActual: estados_actuales){
+            for (Transicion transicion : transiciones_disponibles) {
+                for (String estadoActual : estados_actuales) {
 
                     // ◂ Como tenemos multiples estados actuales, evaluaremos uno por uno y tratamos sus entradas respectivas ▸ //
-                    if(estadoActual.equalsIgnoreCase(transicion.estadoActual)){
+                    if (estadoActual.equalsIgnoreCase(transicion.estadoActual)) {
 
                         // ◂ Añadimos los estados siguientes dependiendo de la entrada del caracter ▸ //
-                        if(transicion.entrada.equals(String.valueOf(caracter))){
+                        if (transicion.entrada.equals(String.valueOf(caracter))) {
                             //conjunto_estados_recorridos.add(transicion.estadosSiguientes);
                             conjunto_estados_siguientes.add(transicion.estadosSiguientes);
                         }
@@ -115,14 +115,14 @@ public class Automata {
             }
 
             // ◂ ◂ Si despues de buscar en todas las transiciones no coincide el caracter de entrada, la palabra sera rechazada ▸ ▸ //
-            if(conjunto_estados_siguientes.isEmpty()){
+            if (conjunto_estados_siguientes.isEmpty()) {
                 return false;
             }
 
             // ◂ ◂ Establecemos los nuevos estados actuales ▸ ▸ //
             estados_actuales.clear();
-            for(String[] estadosSiguientes: conjunto_estados_siguientes){
-                for(String estadoSiguiente: estadosSiguientes){
+            for (String[] estadosSiguientes : conjunto_estados_siguientes) {
+                for (String estadoSiguiente : estadosSiguientes) {
                     estados_actuales.add(estadoSiguiente); //Añadimos todos los estados nuevos a evaluar en la proxima iteracion
                 }
             }
@@ -134,20 +134,52 @@ public class Automata {
 
     /**
      * Evaluamos si en el recorrido del automata, los ultimos estados recorridos son finales o no.
+     *
      * @param ultimos_estados Lista enlazada de ultimos estados actuales.
      * @return Si alguno de los estados actuales pertenece al conjunto de estados finales = TRUE.
      */
     private boolean esEstadoFinal(LinkedList<String> ultimos_estados) {
-        for(String ultimoEstado: ultimos_estados){
+        for (String ultimoEstado : ultimos_estados) {
 
             // ◂ ◂ Verificamos si el ultimo estado pertenece al conjunto de estados finales ▸ ▸ //
-            for(String estadoFinal: F){
-                if(ultimoEstado.equalsIgnoreCase(estadoFinal)){
+            for (String estadoFinal : F) {
+                if (ultimoEstado.equalsIgnoreCase(estadoFinal)) {
                     return true;
                 }
             }
         }
         return false;
+    }
+
+    //▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼ CLASES INTERNAS ▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼//
+
+    /**
+     * Clase interna que almacena la transicion de un estado a otros de un AFN
+     */
+    public static class Transicion {
+
+        //▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼ VARIABLES ▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼//
+
+        public final String estadoActual;
+        public final String entrada;
+        public final String[] estadosSiguientes;
+
+        /**
+         * Clase interna que almacena la transicion de un estado a otros de un automata finito no determinista generado en el archivo JSON.
+         *
+         * @param estadoActual      Estado de origen que se va transicionar.
+         * @param entrada           Simbolo de entrada para transicionar a los siguientes automatas.
+         * @param estadosSiguientes Estados destino despues de ingresar dicho simbolo.
+         */
+        public Transicion(String estadoActual,
+                          String entrada,
+                          String[] estadosSiguientes) {
+
+            this.estadoActual = estadoActual;
+            this.entrada = entrada;
+            this.estadosSiguientes = estadosSiguientes;
+
+        }
     }
 }
 

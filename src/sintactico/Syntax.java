@@ -1,7 +1,6 @@
 package sintactico;
 
 import lenguaje.Gramatica;
-import lenguaje.ProduccionGramatical;
 
 import java.util.LinkedList;
 
@@ -95,8 +94,8 @@ public class Syntax {
     private void generarFirsts() {
 
         // ◂ ◂ ◂ ◂ Agregamos los primeros de cada produccion, independientemente si son simbolos terminales, no terminales o vacios ▸ ▸ ▸ ▸ //
-        for (ProduccionGramatical produccion : GRAMATICA.P) {
-            agregarFirsts(produccion, produccion.NuT[0]);
+        for (Gramatica.Produccion produccion : GRAMATICA.P) {
+            agregarFirsts(produccion, produccion.NUT[0]);
         }
 
         /*
@@ -162,7 +161,7 @@ public class Syntax {
         la gramática y $ es el símbolo que marca el fin de la entrada.
         ◼◻◼◻◼◻◼◻◼◻◼◻◼◻◼◻◼◻◼◻◼◻◼◻◼◻◼◻◼◻◼◻◼◻◼◻◼◻◼◻◼◻◼◻◼◻◼◻◼◻◼◻◼◻◼◻◼◻◼◻◼◻◼◻◼◻◼◻◼◻◼◻◼◻◼◻◼◻◼◻◼◻◼◻◼◻◼◻◼◻◼◻◼◻◼◻
                 */
-        for (ProduccionGramatical produccionA : GRAMATICA.P) {
+        for (Gramatica.Produccion produccionA : GRAMATICA.P) {
             if (produccionA.N.equals(GRAMATICA.S)) {
                 agregarFollows(produccionA, GRAMATICA.S, "$");
                 break;
@@ -172,11 +171,11 @@ public class Syntax {
         String B;
         String firstBeta;
 
-        for (ProduccionGramatical A : GRAMATICA.P) {
-            for (int i = 0; i < A.NuT.length; i++) {
-                B = A.NuT[i];
-                if (esNoTerminal(A.NuT[i])) {
-                    if (i + 1 <= A.NuT.length - 1) {
+        for (Gramatica.Produccion A : GRAMATICA.P) {
+            for (int i = 0; i < A.NUT.length; i++) {
+                B = A.NUT[i];
+                if (esNoTerminal(A.NUT[i])) {
+                    if (i + 1 <= A.NUT.length - 1) {
 
                                        /*
         ◼◻◼◻◼◻◼◻◼◻◼◻◼◻◼◻◼◻◼◻◼◻◼◻◼◻◼◻◼◻◼◻◼◻◼◻◼◻◼◻◼◻◼◻◼◻◼◻◼◻◼◻◼◻◼◻◼◻◼◻◼◻◼◻◼◻◼◻◼◻◼◻◼◻◼◻◼◻◼◻◼◻◼◻◼◻◼◻◼◻◼◻◼◻◼◻
@@ -186,7 +185,7 @@ public class Syntax {
         ◼◻◼◻◼◻◼◻◼◻◼◻◼◻◼◻◼◻◼◻◼◻◼◻◼◻◼◻◼◻◼◻◼◻◼◻◼◻◼◻◼◻◼◻◼◻◼◻◼◻◼◻◼◻◼◻◼◻◼◻◼◻◼◻◼◻◼◻◼◻◼◻◼◻◼◻◼◻◼◻◼◻◼◻◼◻◼◻◼◻◼◻◼◻◼◻
                                     */
 
-                        firstBeta = A.NuT[i + 1];
+                        firstBeta = A.NUT[i + 1];
 
                         // ◂ ◂ ◂ ◂ Añadir el First(β) que sean un simbolo terminal. ▸ ▸ ▸ ▸ //
                         if (!esNoTerminal(firstBeta)) {
@@ -196,7 +195,7 @@ public class Syntax {
                         } else {
 
                             // ◂ ◂ ◂ ◂ Si es un no terminal, añadimos el First(y) de ese no terminal. ▸ ▸ ▸ ▸ //
-                            for (NuT simboloFirst : extraerFirst(new NuT(A.id, firstBeta))) {
+                            for (NuT simboloFirst : extraerFirst(new NuT(A.ID, firstBeta))) {
                                 if (!simboloFirst.SIMBOLO.isEmpty()) {
 
                                     agregarFollows(A, B, simboloFirst.SIMBOLO);
@@ -204,7 +203,7 @@ public class Syntax {
                                 } else {
 
                                     // ◂ ◂ ◂ ◂ Si ese First(y) contiene vacios, no añadir ese vacio, en cambio, sustituyelo por Follow(A). ▸ ▸ ▸ ▸ //
-                                    for (NuT simboloFollow : extraerFollow(new NuT(A.id, A.N))) {
+                                    for (NuT simboloFollow : extraerFollow(new NuT(A.ID, A.N))) {
 
                                         agregarFollows(A, B, simboloFollow.SIMBOLO);
 
@@ -221,7 +220,7 @@ public class Syntax {
         ◼◻◼◻◼◻◼◻◼◻◼◻◼◻◼◻◼◻◼◻◼◻◼◻◼◻◼◻◼◻◼◻◼◻◼◻◼◻◼◻◼◻◼◻◼◻◼◻◼◻◼◻◼◻◼◻◼◻◼◻◼◻◼◻◼◻◼◻◼◻◼◻◼◻◼◻◼◻◼◻◼◻◼◻◼◻◼◻◼◻◼◻◼◻◼◻
                                     */
 
-                        for (NuT simboloFollow : extraerFollow(new NuT(A.id, A.N))) {
+                        for (NuT simboloFollow : extraerFollow(new NuT(A.ID, A.N))) {
 
                             agregarFollows(A, B, simboloFollow.SIMBOLO);
 
@@ -341,14 +340,14 @@ public class Syntax {
      * @param A           Produccion que se le va extraer su First.
      * @param first_Alpha El First de la produccion.
      */
-    private void agregarFirsts(ProduccionGramatical A, String first_Alpha) {
+    private void agregarFirsts(Gramatica.Produccion A, String first_Alpha) {
 
         if (hayFirstFollowDuplicado(FIRSTS, A.N)) {
 
             // ◂ ◂ ◂ ◂ Editamos el Follow de ese no terminal y agregamos nuevo simbolo NuT ▸ ▸ ▸ ▸ //
             for (FirstFollow first : FIRSTS) {
                 if (first.NO_TERMINAL.equals(A.N)) {
-                    first.agregarSimbolo(new NuT(A.id, first_Alpha));
+                    first.agregarSimbolo(new NuT(A.ID, first_Alpha));
                     break;
                 }
             }
@@ -356,7 +355,7 @@ public class Syntax {
         } else {
 
             // ◂ ◂ ◂ ◂ Creamos un nuevo conjunto First ▸ ▸ ▸ ▸ //
-            FIRSTS.add(new FirstFollow(A.N, first_Alpha, A.id));
+            FIRSTS.add(new FirstFollow(A.N, first_Alpha, A.ID));
         }
     }
 
@@ -367,14 +366,14 @@ public class Syntax {
      * @param B          Simbolo no terminal que pertenece al Follow.
      * @param first_Beta El primero de beta: First(β).
      */
-    private void agregarFollows(ProduccionGramatical A, String B, String first_Beta) {
+    private void agregarFollows(Gramatica.Produccion A, String B, String first_Beta) {
 
         if (hayFirstFollowDuplicado(FOLLOWS, B)) {
 
             // ◂ ◂ ◂ ◂ Editamos el Follow de ese no terminal y agregamos nuevo simbolo NuT ▸ ▸ ▸ ▸ //
             for (FirstFollow follow : FOLLOWS) {
                 if (follow.NO_TERMINAL.equals(B)) {
-                    follow.agregarSimbolo(new NuT(A.id, first_Beta));
+                    follow.agregarSimbolo(new NuT(A.ID, first_Beta));
                     break;
                 }
             }
@@ -382,7 +381,7 @@ public class Syntax {
         } else {
 
             // ◂ ◂ ◂ ◂ Creamos un nuevo conjunto Follow ▸ ▸ ▸ ▸ //
-            FOLLOWS.add(new FirstFollow(B, first_Beta, A.id));
+            FOLLOWS.add(new FirstFollow(B, first_Beta, A.ID));
 
         }
 
@@ -545,9 +544,9 @@ public class Syntax {
      */
     public String[] obtenerProduccion(Integer id_produccion) {
 
-        for (ProduccionGramatical produccion : GRAMATICA.P) {
-            if (produccion.id == id_produccion) {
-                return produccion.NuT;
+        for (Gramatica.Produccion produccion : GRAMATICA.P) {
+            if (produccion.ID == id_produccion) {
+                return produccion.NUT;
             }
         }
 
