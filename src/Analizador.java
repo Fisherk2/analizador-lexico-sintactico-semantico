@@ -1,7 +1,8 @@
 import lexico.Lexic;
 import lexico.Token;
+import lexico.TokenError;
 import semantico.Semantic;
-import semantico.Simbolo;
+import semantico.Sentencia;
 import sintactico.Syntax;
 
 import java.util.LinkedList;
@@ -57,18 +58,16 @@ public class Analizador {
         eof = 0;
 
         lineasCodigoFuente = separarPorLineas(codigo);
-
-        System.out.println("\n■▣□▣■▣□▣■▣□▣■▣□▣■▣□▣■▣□▣ METODO LLDRIVER PASO A PASO ■▣□▣■▣□▣■▣□▣■▣□▣■▣□▣■▣□▣\n");
-        aplicarLLDriver();
-        System.out.println("\n■▣□▣■▣□▣■▣□▣■▣□▣■▣□▣■▣□▣ ANALISIS TERMINADO ■▣□▣■▣□▣■▣□▣■▣□▣■▣□▣■▣□▣\n");
-
+        firstLLDRIVER();
+        System.out.println("\n■▣□▣■▣□▣■▣□▣■▣□▣■▣□▣■▣□▣ ANALISIS LEXICO-SINTACTICO TERMINADO ■▣□▣■▣□▣■▣□▣■▣□▣■▣□▣■▣□▣\n");
+        secondLLDRIVER();
     }
 
     /**
      * Funcion que genera una pila con un archivo de texto plano separado por saltos de linea.
      *
      * @param texto Texto plano.
-     * @return Pila de un texto separado por saltos de linea.
+     * @return Lista enlazada de un texto separado por saltos de linea.
      */
     private LinkedList<String> separarPorLineas(String texto) {
 
@@ -86,128 +85,175 @@ public class Analizador {
         return lineas;
     }
 
-    private void aplicarLLDriver() {
-
-        //TODO: ELIMINAR PROCEDIMIENTO LLDRIVER PARA SALIDA DE CONSOLA MAS LIMPIA
+    /**
+     * Metodo que analiza lexica y sintacticamente un codigo fuente dependiendo del lenguaje,
+     * genera la tabla de tokens y la primer tabla de simbolos.
+     */
+    private void firstLLDRIVER() {
 
         // ◂ ◂ ◂ ◂ Iniciamos nueva pila vacia ▸ ▸ ▸ ▸ //
         stackDriver = new Stack<>();
 
         // ◂ ◂ ◂ ◂ Push(s) -- poner el símbolo inicial en la pila vacía ▸ ▸ ▸ ▸ //
         stackDriver.push(SINTACTICO.getSimboloInicial());
-        System.out.println("1) Push (S) en la pila vacia: " + stackDriver.peek());
 
         // ◂ ◂ ◂ ◂ Asigne a [x] el símbolo en la parte alta de la pila ▸ ▸ ▸ ▸ //
         int x = SINTACTICO.obtenerIndiceNoTerminal(stackDriver.peek());
-        System.out.println("2) Asigne a [x] el símbolo en la parte alta de la pila: " + x);
 
         // ◂ ◂ ◂ ◂ Asigne a [a] el token de entrada ▸ ▸ ▸ ▸ //
-        Token entrada_a = pedirToken(); //TODO: CADA QUE PIDAN UN TOKEN, VERIFICAR EN QUE INDICE DE LA GRAMATICA SE ENCUENTRA
+        Token entrada_a = pedirToken();
         int a = SINTACTICO.obtenerIndiceTerminal(convertirATerminal(entrada_a));
-        System.out.println("3) Asigne a [a] el token de entrada: " + entrada_a + " [a]: " + a);
-
-        System.out.println("☱☲☴☲☱☲☴☲☱☲☴☲☱☲☴☲☱☲☴☲☱☲☴☲☱☲☴☲☱☲☴☲☱☲☴☲☱☲☴☲☱☲☴☲☱☲☴☲☱☲☴☲☱☲☴☲☱☲☴☲☱☲☴☲☱☲☴☲☱☲☴☲");
 
         // ◂ ◂ ◂ ◂ while not stack empty loop ▸ ▸ ▸ ▸ //
         while (!stackDriver.empty()) {
 
             // ◂ ◂ ◂ ◂ If x in noterminals Then ▸ ▸ ▸ ▸ //
-            System.out.println("4) Si " + stackDriver.peek() + " es no terminal, entonces: ");
             if (SINTACTICO.esNoTerminal(stackDriver.peek())) {
 
                 // ◂ ◂ ◂ ◂ Obtenemos el indice de [x] de la matriz predictiva ▸ ▸ ▸ ▸ //
                 x = SINTACTICO.obtenerIndiceNoTerminal(stackDriver.peek());
-                System.out.println("5) Obtenemos el indice de la matriz predictiva donde se ubica [x]: " + x);
 
                 // ◂ ◂ ◂ ◂ If Predict[x,a] !=0 ▸ ▸ ▸ ▸ //
-                System.out.println("6) Si no es cero, osea Predict[" + x + "," + a + "] = " + SINTACTICO.PREDICT[x][a] + ", entonces: ");
                 if (SINTACTICO.PREDICT[x][a] != 0) {
 
                     // ◂ ◂ ◂ ◂ Un Pop() y un ciclo de Push() de la produccion del id que se encuentra en Predict[x,a] ▸ ▸ ▸ ▸ //
-
-                    System.out.println("7) Hacemos Pop a " + stackDriver.peek());
                     stackDriver.pop();
-
-
-                    System.out.println("8) Remplazamos [x] por la produccion de Predict[x,a]");
-                    System.out.print("Produccion de Predict[" + x + "," + a + "] = ");
-                    for (String simboloNut : SINTACTICO.obtenerProduccion(SINTACTICO.PREDICT[x][a])) {
-                        System.out.print("[" + simboloNut + "]");
-                    }
-                    System.out.println();
-
-                    pushInvertido(SINTACTICO.obtenerProduccion(SINTACTICO.PREDICT[x][a]));
-                    System.out.println("9) Hacemos ciclo de Push a la produccion de derecha a izquierda");
+                    pushInvertido(stackDriver, SINTACTICO.obtenerProduccion(SINTACTICO.PREDICT[x][a]));
 
                 } else {
 
-                    // ◂ ◂ ◂ ◂ Procesa error de sintaxis ▸ ▸ ▸ ▸ //
+                    // ◂ ◂ ◂ ◂ TODO: Procesa error de sintaxis ▸ ▸ ▸ ▸ //
                     hayError = true;
-                    System.err.println("HAY ERROR DE SINTAXIS, YA QUE Predict[" + x + "," + a + "] = " + SINTACTICO.PREDICT[x][a] + " NO APUNTA A NINGUN ID DE PRODUCCION DE LA GRAMATICA");
+                    System.err.println("HAY ERROR DE SINTAXIS: PREDICT[x,a] = 0");
                     return;
 
                 }
             } else {
 
                 // ◂ ◂ ◂ ◂ If x == a Then ▸ ▸ ▸ ▸ //
-                System.out.println("10) Si " + entrada_a + " es igual ó es un " + stackDriver.peek());
                 if (sonElMismoSimboloTerminal(stackDriver.peek(), convertirATerminal(entrada_a))) {
 
                     // ◂ ◂ ◂ ◂ Pop() ▸ ▸ ▸ ▸ //
-                    System.out.println("11) Hacemos Pop a " + stackDriver.peek());
                     stackDriver.pop();
                     // ◂ ◂ ◂ ◂ a = scanner() ▸ ▸ ▸ ▸ //
-                    entrada_a = pedirToken(); //TODO: CADA QUE PIDAN UN TOKEN, VERIFICAR EN QUE INDICE DE LA GRAMATICA SE ENCUENTRA
+                    entrada_a = pedirToken();
                     a = SINTACTICO.obtenerIndiceTerminal(convertirATerminal(entrada_a));
-                    System.out.println("12) Pedimos proximo token de entrada: " + entrada_a + " [a]: " + a);
 
                 } else {
 
-                    // ◂ ◂ ◂ ◂ Procesa error de sintaxis ▸ ▸ ▸ ▸ //
+                    // ◂ ◂ ◂ ◂ TODO: Procesa error de sintaxis ▸ ▸ ▸ ▸ //
                     hayError = true;
-                    System.err.println("HAY ERROR DE SINTAXIS, YA QUE " + entrada_a + " NO ES IGUAL ó NO ES UN " + stackDriver.peek());
+                    System.err.println("HAY ERROR DE SINTAXIS: x != a");
                     return;
                 }
             }
-
-            System.out.println("☲☴☲☱☲☴☲☱☲☴☲☱☲☴☲☱☲☴☲☱☲☴☲☱☲☴☲☱☲☴☲☱☲ PILA ☲☱☲☴☲☱☲☴☲☱☲☴☲☱☲☴☲☱☲☴☲☱☲☴☲☱☲☴☲☱☲☴☲");
-            for (int i = stackDriver.size() - 1; i >= 0; i--) {
-                System.out.println(stackDriver.get(i));
-            }
-
-            System.out.println("☲☴☲☱☲☴☲☱☲☴☲☱☲☴☲☱☲☴☲☱☲☴☲☱☲☴☲☱☲☴☲☱☲ TABLA DE SIMBOLOS ☲☱☲☴☲☱☲☴☲☱☲☴☲☱☲☴☲☱☲☴☲☱☲☴☲☱☲☴☲☱☲☴☲");
-
-            for (Simbolo simbolo : SEMANTICO.getTABLA_DE_SIMBOLOS()) {
-                System.out.println(simbolo);
-            }
-
-            System.out.println("☱☲☴☲☱☲☴☲☱☲☴☲☱☲☴☲☱☲☴☲☱☲☴☲☱☲☴☲☱☲☴☲☱☲☴☲☱☲☴☲☱☲☴☲☱☲☴☲☱☲☴☲☱☲☴☲☱☲☴☲☱☲☴☲☱☲☴☲☱☲☴☲");
-
         }
 
         // ◂ ◂ ◂ ◂ Validar si la pila esta vacia y el apuntador del token de entrada sea fin de archivo ▸ ▸ ▸ ▸ //
-        System.out.println("13) ¿La pila esta vacia y el apuntador " + entrada_a + " es EOF ($)?: ");
         if (!stackDriver.empty() && !entrada_a.LEXEMA.equals("EOF")) {
+            //TODO: Procesar error de sintaxis
             hayError = true;
-            System.err.println(hayError + " POR LO TANTO, HAY ERROR DE SINTAXIS, YA QUE LA PILA NO ESTA VACIA");
+            System.err.println("HAY ERROR DE SINTAXIS: La pila no esta vacia y el apuntador no es fin de archivo");
         }
 
-        System.out.print(!hayError);
     }
 
+    /**
+     * Metodo que genera tabla de notaciones a partir de la tabla de tokens y actualiza la tabla de simbolos.
+     */
+    private void secondLLDRIVER() {
+
+        // ◂ ◂ ◂ ◂ Iniciamos nueva pila vacia, el indice de la tabla de tokens y las sentencias que se vayan generado ▸ ▸ ▸ ▸ //
+        stackDriver.empty();
+        int indiceToken = 0;
+        String[] produccion;
+        LinkedList<Token> notacion = new LinkedList<>();
+        Stack<String> stackSentencia = new Stack<>();
+
+        // ◂ ◂ ◂ ◂ Push(s) -- poner el símbolo inicial en la pila vacía ▸ ▸ ▸ ▸ //
+        stackDriver.push(SINTACTICO.getSimboloInicial());
+
+        // ◂ ◂ ◂ ◂ Asignar a [x] el símbolo en la parte alta de la pila ▸ ▸ ▸ ▸ //
+        int x = SINTACTICO.obtenerIndiceNoTerminal(stackDriver.peek());
+
+        // ◂ ◂ ◂ ◂ Asigne a [a] el token de entrada ▸ ▸ ▸ ▸ //
+        Token entrada_a = LEXICO.getTABLA_DE_TOKENS().get(indiceToken++);
+        int a = SINTACTICO.obtenerIndiceTerminal(convertirATerminal(entrada_a));
+
+        // ◂ ◂ ◂ ◂ while not stack empty loop ▸ ▸ ▸ ▸ //
+        while (!stackDriver.empty()) {
+
+            // ◂ ◂ ◂ ◂ If x in noterminals Then ▸ ▸ ▸ ▸ //
+            if (SINTACTICO.esNoTerminal(stackDriver.peek())) {
+
+                // ◂ ◂ ◂ ◂ Obtenemos el indice de [x] de la matriz predictiva ▸ ▸ ▸ ▸ //
+                x = SINTACTICO.obtenerIndiceNoTerminal(stackDriver.peek());
+                produccion = SINTACTICO.obtenerProduccion(SINTACTICO.PREDICT[x][a]);
+
+                // ◂ ◂ ◂ ◂ Si Predict[x,a] == conjunto de indices que establecen las sentencias gramaticales ▸ ▸ ▸ ▸ //
+                if (SEMANTICO.esSentencia(SINTACTICO.PREDICT[x][a])) {
+
+                    // ◂ ◂ ◂ ◂ Capturamos un ciclo de push() de la produccion del id que pertenece a las sentencias ▸ ▸ ▸ ▸ //
+                    stackSentencia.clear();
+                    pushInvertido(stackSentencia, produccion);
+
+                } else {
+
+                    // ◂ ◂ ◂ ◂ Seguimos derivando producciones, hasta que vaciemos la produccion de la sentencia ▸ ▸ ▸ ▸ //
+                    if (!stackSentencia.empty()) {
+                        stackSentencia.pop();
+                        pushInvertido(stackSentencia, produccion);
+
+                        // ◂ ◂ ◂ ◂ Cuando terminos de recorrer toda la produccion, almacenamos la notacion, siempre y cuando tenga contenido ▸ ▸ ▸ ▸ //
+                    } else if (!notacion.isEmpty()) {
+                        SEMANTICO.almacenarNotacion(notacion);
+                        notacion.clear();
+                    }
+                }
+
+                // ◂ ◂ ◂ ◂ Un Pop() y un ciclo de Push() de la produccion del id que se encuentra en Predict[x,a] ▸ ▸ ▸ ▸ //
+                stackDriver.pop();
+                pushInvertido(stackDriver, produccion);
+
+            } else {
+
+                // ◂ ◂ ◂ ◂ Pop() siempre y cuando la produccion de la sentencias tenga contenido ▸ ▸ ▸ ▸ //
+                if (!stackSentencia.empty()) {
+                    notacion.add(entrada_a);
+                    stackSentencia.pop();
+                }
+                stackDriver.pop();
+
+                // ◂ ◂ ◂ ◂ a = scanner() ▸ ▸ ▸ ▸ //
+                if (indiceToken < LEXICO.getTABLA_DE_TOKENS().size()) {
+
+                    entrada_a = LEXICO.getTABLA_DE_TOKENS().get(indiceToken++);
+                    a = SINTACTICO.obtenerIndiceTerminal(convertirATerminal(entrada_a));
+
+                } else {
+                    // ◂ ◂ ◂ ◂ Fin de la tabla de tokens ▸ ▸ ▸ ▸ //
+                    break;
+                }
+            }
+        }
+
+        //TODO: Conversion de notaciones prefija/posfija
+        //TODO: Verificar tipo de datos en notaciones que involucren expresiones de asignacion
+
+    }
 
     /**
      * Metodo que hace push a la pila los elementos de la produccion de izquierda a derecha.
      *
      * @param produccion Produccion que contiene simbolos terminales y no terminales.
      */
-    private void pushInvertido(String[] produccion) {
+    private void pushInvertido(Stack<String> pila, String[] produccion) {
 
         for (int i = produccion.length - 1; i >= 0; i--) {
 
             // ◂ ◂ ◂ ◂ Si hay vacios en la produccion, no se agrega a la pila ▸ ▸ ▸ ▸ //
             if (!produccion[i].isEmpty()) {
-                stackDriver.push(produccion[i]);
+                pila.push(produccion[i]);
 
             }
 
@@ -315,7 +361,17 @@ public class Analizador {
         bof = eof;
 
         // ◂ ◂ ◂ ◂ Generamos Token y lo almacenamos en la tabla de simbolos y tokens ▸ ▸ ▸ ▸ //
-        Token token = LEXICO.crearToken(subcadena, numLinea);
+        Token token;
+
+        if (LEXICO.AFN.esAceptada(subcadena)) {
+            token = LEXICO.crearToken(subcadena, numLinea);
+        } else {
+            //TODO: Procesar error lexico.
+            token = new TokenError(subcadena, numLinea);
+            hayError = true;
+            System.err.println("HAY ERROR LEXICO: " + token);
+        }
+
         almacenarTablas(token);
 
         // ◂ ◂ ◂ ◂ Damos el token generado con esa subcadena ▸ ▸ ▸ ▸ //
@@ -344,6 +400,24 @@ public class Analizador {
         } else {
             LEXICO.almacenarToken(token);
         }
+    }
+
+    /**
+     * Funcion que convierte cualquier expresion infija a prefija.
+     *
+     * @param expresion_infija Sentencia o instruccion en forma infija.
+     */
+    private void convertirPrefija(Sentencia expresion_infija) {
+        //TODO: GENERAR ALGORITMO DE CONVERSION PREFIJA
+    }
+
+    /**
+     * Funcion que convierte cualquier expresion infija a posfija.
+     *
+     * @param expresion_infija Sentencia o instruccion en forma infija.
+     */
+    private void convertirPosfija(Sentencia expresion_infija) {
+        //TODO: GENERAR ALGORITMO DE CONVERSION POSFIJA
     }
 
 }

@@ -11,6 +11,7 @@
   {"NAME": "Palabras reservadas", "REGEX": "Fin", "ATTRIBUTE": 453},
   {"NAME": "Caracter apertura", "REGEX": "\\(", "ATTRIBUTE": 40},
   {"NAME": "Caracter cerradura", "REGEX": "\\)", "ATTRIBUTE": 41},
+  {"NAME": "Operador aritmetico", "REGEX": "\\*", "ATTRIBUTE": 42},
   {"NAME": "Operador aritmetico", "REGEX": "\\+", "ATTRIBUTE": 43},
   {"NAME": "Caracter separador", "REGEX": ",", "ATTRIBUTE": 44},
   {"NAME": "Operador aritmetico", "REGEX": "-", "ATTRIBUTE": 45},

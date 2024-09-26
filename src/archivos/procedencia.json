@@ -7,15 +7,15 @@
   "CHECK_DATA": {
 
     "INTEGER": [
-      ["Numeros enteros","Numeros enteros"]
+      [555,555]
     ],
 
     "FLOAT": [
-      ["Numeros flotantes","Numeros flotantes"],
-      ["Numeros flotantes","Numeros enteros"]
+      [666,666],
+      [666,555]
     ],
 
-    "STRING": [[""]]
+    "STRING": [[0]]
 
   }
 

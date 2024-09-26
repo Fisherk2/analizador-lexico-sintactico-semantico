@@ -7,7 +7,7 @@ Inicio
 
     Leer (numero);
 
-    multiple = 0.12 + (numero - 0.120);
+    multiple = 0.12 * (numero - 0.120);
     Si multiple == 10 Entonces
         Escribir(numero);
     Sino

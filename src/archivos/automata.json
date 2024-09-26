@@ -62,6 +62,7 @@
     {"estadoActual": "k0", "entrada": "<", "estadosSiguientes": ["k1","k47"]},
     {"estadoActual": "k0", "entrada": ";", "estadosSiguientes": ["k1"]},
     {"estadoActual": "k0", "entrada": ">", "estadosSiguientes": ["k1"]},
+    {"estadoActual": "k0", "entrada": "*", "estadosSiguientes": ["k1"]},
     {"estadoActual": "k0", "entrada": "+", "estadosSiguientes": ["k1"]},
     {"estadoActual": "k0", "entrada": "-", "estadosSiguientes": ["k1"]},
     {"estadoActual": "k0", "entrada": "(", "estadosSiguientes": ["k1"]},

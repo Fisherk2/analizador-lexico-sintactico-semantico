@@ -13,15 +13,9 @@ public class Sentencia {
      */
     public final Token[] INFIJA;
 
-    /**
-     * Expresion prefija de la sentencia
-     */
-    public final Token[] PREFIJA;
+    private Token[] prefija;
 
-    /**
-     * Expresion posfija de la sentencia.
-     */
-    public final Token[] POSFIJA;
+    private Token[] posfija;
 
     /**
      * Clase que almacena la notacion de una sentencia o instruccion generada por la gramatica.
@@ -30,8 +24,8 @@ public class Sentencia {
      */
     public Sentencia(Token[] infija) {
         this.INFIJA = infija;
-        this.PREFIJA = convertirPrefija(infija);
-        this.POSFIJA = convertirPosfija(infija);
+        prefija = null;
+        posfija = null;
     }
 
     @Override
@@ -41,7 +35,7 @@ public class Sentencia {
         for (Token token : INFIJA) {
             resultado += token.LEXEMA + " ";
         }
-
+/*
         resultado += "- PREFIJA: ";
 
         for (Token token : PREFIJA) {
@@ -54,29 +48,26 @@ public class Sentencia {
             resultado += token.LEXEMA + " ";
         }
 
+ */
+
         return resultado;
     }
 
-    /**
-     * Funcion que convierte cualquier expresion infija a prefija.
-     *
-     * @param expresion_infija Lista o arreglo de tokens que conforma la expresion infija
-     * @return Arreglo de tokens ordenado de forma prefija.
-     */
-    private Token[] convertirPrefija(Token[] expresion_infija) {
-        //TODO: GENERAR ALGORITMO DE CONVERSION PREFIJA
-        return null;
+    //▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼ GETTERS & SETTERS ▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼//
+
+    public Token[] getPrefija() {
+        return prefija;
     }
 
-    /**
-     * Funcion que convierte cualquier expresion infija a posfija.
-     *
-     * @param expresion_infija Lista o arreglo de tokens que conforma la expresion infija
-     * @return Arreglo de tokens ordenado de forma posfija.
-     */
-    private Token[] convertirPosfija(Token[] expresion_infija) {
-        //TODO: GENERAR ALGORITMO DE CONVERSION POSFIJA
-        return null;
+    public void setPrefija(Token[] prefija) {
+        this.prefija = prefija;
     }
 
+    public Token[] getPosfija() {
+        return posfija;
+    }
+
+    public void setPosfija(Token[] posfija) {
+        this.posfija = posfija;
+    }
 }

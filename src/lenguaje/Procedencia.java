@@ -25,7 +25,7 @@ public class Procedencia {
      *
      * @param SENTENCES  IDs de la gramatica donde se establece las producciones que inician instrucciones o sentencias.
      * @param INIT       ID de la gramatica donde se establece la produccion que inicia el programa.
-     * @param CHECK_DATA Tabla de verificacion de datos entre constantes y variables.
+     * @param CHECK_DATA Tabla de verificacion de datos entre constantes y variables basado en los atributos de la tabla de clasificaion lexica.
      */
     public Procedencia(int[] SENTENCES, int INIT, Verificador CHECK_DATA) {
         this.SENTENCES = SENTENCES;
@@ -61,27 +61,29 @@ public class Procedencia {
         /**
          * Cruces entre tipos de datos que dan como resultado un tipo de dato entero.
          */
-        public final String[][] INTEGER;
+        public final int[][] INTEGER;
         /**
          * Cruces entre tipos de datos que dan como resultado un tipo de dato flotante.
          */
-        public final String[][] FLOAT;
+        public final int[][] FLOAT;
         /**
          * Cruces entre tipos de datos que dan como resultado un tipo de dato cadena de texto.
          */
-        public final String[][] STRING;
+        public final int[][] STRING;
 
         /**
-         * Clase que almacena la tabla de verificacion de datos de una constante o variable.
+         * Clase que almacena la tabla de verificacion de datos de una constante o variable,
+         * en base a los atributos de la tabla de clasificacion lexica del lenguaje.
          *
-         * @param INTEGER Pares de cruces donde el resultado dara un tipo de dato entero.
-         * @param FLOAT   Pares de cruces donde el resultado dara un tipo de dato flotante.
-         * @param STRING  Pares de cruces donde el resultado dara un tipo de dato cadena de texto.
+         * @param ids_integer Pares de cruces donde el resultado dara un tipo de dato entero.
+         * @param ids_float   Pares de cruces donde el resultado dara un tipo de dato flotante.
+         * @param ids_string  Pares de cruces donde el resultado dara un tipo de dato cadena de texto.
+         * @implNote Si en tu lenguaje no hay operaciones con algun tipo de dato, simplemente dejalo con un CERO = [[0]]
          */
-        public Verificador(String[][] INTEGER, String[][] FLOAT, String[][] STRING) {
-            this.INTEGER = INTEGER;
-            this.FLOAT = FLOAT;
-            this.STRING = STRING;
+        public Verificador(int[][] ids_integer, int[][] ids_float, int[][] ids_string) {
+            this.INTEGER = ids_integer;
+            this.FLOAT = ids_float;
+            this.STRING = ids_string;
         }
 
         @Override

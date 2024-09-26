@@ -14,7 +14,7 @@ import java.util.regex.PatternSyntaxException;
 public class Lexic {
 
     //▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼ VARIABLES ▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼//
-    private final Automata AFN;
+    public final Automata AFN;
     private final Clasificacion[] TABLA_CLASIFICACION_LEXICA;
     private final LinkedList<Token> TABLA_DE_TOKENS;
     private final LinkedHashSet<Clasificacion> TABLA_PALABRAS_RESERVADAS;
@@ -125,11 +125,6 @@ public class Lexic {
      */
     public Token crearToken(String lexema, int numDeLinea) {
 
-        // ◂ ◂ ◂ ◂ Si el lexema no es aceptado, se generara un token de error donde se almacena el numero de linea ▸ ▸ ▸ ▸ //
-        if (!AFN.esAceptada(lexema)) {
-            return new TokenError(lexema, numDeLinea);
-        }
-
         // ◂ ◂ ◂ ◂ Obtenemos la clasificacion lexica que pertenece a ese lexema ▸ ▸ ▸ ▸ //
         Clasificacion lexemaClasificado = getClasificacionLexica(lexema);
 
@@ -185,6 +180,7 @@ public class Lexic {
 
     /**
      * Funcion que verifica si la cadena de caracteres especiales forma parte del alfabeto de caracteres compuestos del lenguaje.
+     *
      * @param caracterEspecialCompuesto lexema con caracteres especiales compuestos.
      * @return ¿Forma parte del alfabeto de caracteres especiales del lenguaje?
      */
