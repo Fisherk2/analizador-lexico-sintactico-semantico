@@ -13,19 +13,22 @@ public class Sentencia {
      */
     public final Token[] INFIJA;
 
-    private Token[] prefija;
+    public final Token[] PREFIJA;
 
-    private Token[] posfija;
+    public final Token[] POSFIJA;
 
     /**
      * Clase que almacena la notacion de una sentencia o instruccion generada por la gramatica.
      *
-     * @param infija Expresion Infija de la sentencia.
+     * @param infija  Expresion Infija de la sentencia.
+     * @param prefija Expresion prefija de la sentencia.
+     * @param posfija Expresion posfija de la sentencia.
+     * @implNote Si solo quieres utilizar dos tipos de expresion, puedes dejar en NULL tanto la prefija o la posfija.
      */
-    public Sentencia(Token[] infija) {
+    public Sentencia(Token[] infija, Token[] prefija, Token[] posfija) {
         this.INFIJA = infija;
-        prefija = null;
-        posfija = null;
+        this.PREFIJA = prefija;
+        this.POSFIJA = posfija;
     }
 
     @Override
@@ -35,39 +38,23 @@ public class Sentencia {
         for (Token token : INFIJA) {
             resultado += token.LEXEMA + " ";
         }
-/*
-        resultado += "- PREFIJA: ";
 
-        for (Token token : PREFIJA) {
-            resultado += token.LEXEMA + " ";
+        if (PREFIJA != null) {
+            resultado += "- PREFIJA: ";
+
+            for (Token token : PREFIJA) {
+                resultado += token.LEXEMA + " ";
+            }
         }
 
-        resultado = "- POSFIJA: ";
+        if (POSFIJA != null) {
+            resultado += "- POSFIJA: ";
 
-        for (Token token : POSFIJA) {
-            resultado += token.LEXEMA + " ";
+            for (Token token : POSFIJA) {
+                resultado += token.LEXEMA + " ";
+            }
         }
-
- */
 
         return resultado;
-    }
-
-    //▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼ GETTERS & SETTERS ▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼//
-
-    public Token[] getPrefija() {
-        return prefija;
-    }
-
-    public void setPrefija(Token[] prefija) {
-        this.prefija = prefija;
-    }
-
-    public Token[] getPosfija() {
-        return posfija;
-    }
-
-    public void setPosfija(Token[] posfija) {
-        this.posfija = posfija;
     }
 }

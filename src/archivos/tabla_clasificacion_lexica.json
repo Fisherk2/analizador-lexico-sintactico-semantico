@@ -1,28 +1,59 @@
-[
-  {"NAME": "Palabras reservadas", "REGEX": "Programa", "ATTRIBUTE": 444},
-  {"NAME": "Palabras reservadas", "REGEX": "Real", "ATTRIBUTE": 445},
-  {"NAME": "Palabras reservadas", "REGEX": "Entero", "ATTRIBUTE": 446},
-  {"NAME": "Palabras reservadas", "REGEX": "Leer", "ATTRIBUTE": 447},
-  {"NAME": "Palabras reservadas", "REGEX": "Escribir", "ATTRIBUTE": 448},
-  {"NAME": "Palabras reservadas", "REGEX": "Si", "ATTRIBUTE": 449},
-  {"NAME": "Palabras reservadas", "REGEX": "Entonces", "ATTRIBUTE": 450},
-  {"NAME": "Palabras reservadas", "REGEX": "Sino", "ATTRIBUTE": 451},
-  {"NAME": "Palabras reservadas", "REGEX": "Inicio", "ATTRIBUTE": 452},
-  {"NAME": "Palabras reservadas", "REGEX": "Fin", "ATTRIBUTE": 453},
-  {"NAME": "Caracter apertura", "REGEX": "\\(", "ATTRIBUTE": 40},
-  {"NAME": "Caracter cerradura", "REGEX": "\\)", "ATTRIBUTE": 41},
-  {"NAME": "Operador aritmetico", "REGEX": "\\*", "ATTRIBUTE": 42},
-  {"NAME": "Operador aritmetico", "REGEX": "\\+", "ATTRIBUTE": 43},
-  {"NAME": "Caracter separador", "REGEX": ",", "ATTRIBUTE": 44},
-  {"NAME": "Operador aritmetico", "REGEX": "-", "ATTRIBUTE": 45},
-  {"NAME": "Operador aritmetico", "REGEX": "/", "ATTRIBUTE": 47},
-  {"NAME": "Caracter sentencia", "REGEX": ";", "ATTRIBUTE": 59},
-  {"NAME": "Operador booleano", "REGEX": "<", "ATTRIBUTE": 60},
-  {"NAME": "Caracter asignacion", "REGEX": "=", "ATTRIBUTE": 61},
-  {"NAME": "Operador booleano", "REGEX": "==", "ATTRIBUTE": 256},
-  {"NAME": "Operador booleano", "REGEX": "<>", "ATTRIBUTE": 257},
-  {"NAME": "Operador booleano", "REGEX": ">", "ATTRIBUTE": 62},
-  {"NAME": "Numeros enteros", "REGEX": "^[1-9][0-9]*|[0]", "ATTRIBUTE": 555},
-  {"NAME": "Numeros flotantes", "REGEX": "(^[1-9][0-9]*|[0])\\.[0-9]+", "ATTRIBUTE": 666},
-  {"NAME": "Identificadores", "REGEX": "^[a-z](_*([a-z]|[0-9]))*", "ATTRIBUTE": 777}
-]
+{
+  "WORD_RESERVES":
+  [
+    {"NAME": "Palabras reservadas", "REGEX": "Programa", "ATTRIBUTE": 444},
+    {"NAME": "Palabras reservadas", "REGEX": "Real", "ATTRIBUTE": 445},
+    {"NAME": "Palabras reservadas", "REGEX": "Entero", "ATTRIBUTE": 446},
+    {"NAME": "Palabras reservadas", "REGEX": "Leer", "ATTRIBUTE": 447},
+    {"NAME": "Palabras reservadas", "REGEX": "Escribir", "ATTRIBUTE": 448},
+    {"NAME": "Palabras reservadas", "REGEX": "Si", "ATTRIBUTE": 449},
+    {"NAME": "Palabras reservadas", "REGEX": "Entonces", "ATTRIBUTE": 450},
+    {"NAME": "Palabras reservadas", "REGEX": "Sino", "ATTRIBUTE": 451},
+    {"NAME": "Palabras reservadas", "REGEX": "Inicio", "ATTRIBUTE": 452},
+    {"NAME": "Palabras reservadas", "REGEX": "Fin", "ATTRIBUTE": 453}
+  ],
+
+  "INTEGER_NUMBERS": {"NAME": "Numeros enteros", "REGEX": "^[1-9][0-9]*|[0]", "ATTRIBUTE": 555},
+  "FLOAT_NUMBERS": {"NAME": "Numeros flotantes", "REGEX": "(^[1-9][0-9]*|[0])\\.[0-9]+", "ATTRIBUTE": 666},
+  "STRINGS": {},
+  "IDENTIFIERS": {"NAME": "Identificadores", "REGEX": "^[a-z](_*([a-z]|[0-9]))*", "ATTRIBUTE": 777},
+
+  "OPERATORS":
+  {
+    "ADDITION": {"NAME": "Operador aritmetico", "REGEX": "\\+", "ATTRIBUTE": 43},
+    "SUBTRACTION": {"NAME": "Operador aritmetico", "REGEX": "-", "ATTRIBUTE": 45},
+    "MULTIPLICATION": {"NAME": "Operador aritmetico", "REGEX": "\\*", "ATTRIBUTE": 42},
+    "DIVISION": {"NAME": "Operador aritmetico", "REGEX": "/", "ATTRIBUTE": 47},
+    "EXPONENTIATION": {},
+    "MODULO": {},
+    "INTEGER_DIVISION": {},
+
+    "ASIGN": {"NAME": "Caracter asignacion", "REGEX": "=", "ATTRIBUTE": 61},
+    "ADD_ASIGN": {},
+    "SUB_ASIGN": {},
+    "MULT_ASIGN": {},
+    "DIV_ASIGN": {},
+    "MOD_ASIGN": {},
+    "INT_DIV_ASIGN": {},
+
+    "EQUAL_TO": {"NAME": "Operador booleano", "REGEX": "==", "ATTRIBUTE": 256},
+    "LESS_THAN": {"NAME": "Operador booleano", "REGEX": "<", "ATTRIBUTE": 60},
+    "GREATER_THAN": {"NAME": "Operador booleano", "REGEX": ">", "ATTRIBUTE": 62},
+    "LESS_EQUAL_TO": {},
+    "GREATER_EQUAL_TO": {},
+    "NOT_EQUAL_TO": {"NAME": "Operador booleano", "REGEX": "<>", "ATTRIBUTE": 257},
+
+    "AND": {},
+    "OR": {},
+    "NOT": {},
+
+    "OPENER_SIGN": {"NAME": "Caracter apertura", "REGEX": "\\(", "ATTRIBUTE": 40},
+    "CLOSER_SIGN": {"NAME": "Caracter cerradura", "REGEX": "\\)", "ATTRIBUTE": 41}
+  },
+
+  "SPECIAL_CHARS":
+  [
+    {"NAME": "Caracter separador", "REGEX": ",", "ATTRIBUTE": 44},
+    {"NAME": "Caracter sentencia", "REGEX": ";", "ATTRIBUTE": 59}
+  ]
+}

@@ -151,7 +151,7 @@ public class Analizador {
 
         // ◂ ◂ ◂ ◂ Validar si la pila esta vacia y el apuntador del token de entrada sea fin de archivo ▸ ▸ ▸ ▸ //
         if (!stackDriver.empty() && !entrada_a.LEXEMA.equals("EOF")) {
-            //TODO: Procesar error de sintaxis
+            // ◂ ◂ ◂ ◂ TODO: Procesa error de sintaxis ▸ ▸ ▸ ▸ //
             hayError = true;
             System.err.println("HAY ERROR DE SINTAXIS: La pila no esta vacia y el apuntador no es fin de archivo");
         }
@@ -167,8 +167,9 @@ public class Analizador {
         stackDriver.empty();
         int indiceToken = 0;
         String[] produccion;
-        LinkedList<Token> notacion = new LinkedList<>();
+        LinkedList<Token> notacion_infija = new LinkedList<>();
         Stack<String> stackSentencia = new Stack<>();
+        Sentencia sentencia;
 
         // ◂ ◂ ◂ ◂ Push(s) -- poner el símbolo inicial en la pila vacía ▸ ▸ ▸ ▸ //
         stackDriver.push(SINTACTICO.getSimboloInicial());
@@ -191,7 +192,7 @@ public class Analizador {
                 produccion = SINTACTICO.obtenerProduccion(SINTACTICO.PREDICT[x][a]);
 
                 // ◂ ◂ ◂ ◂ Si Predict[x,a] == conjunto de indices que establecen las sentencias gramaticales ▸ ▸ ▸ ▸ //
-                if (SEMANTICO.esSentencia(SINTACTICO.PREDICT[x][a])) {
+                if (SEMANTICO.esSentencia(SINTACTICO.PREDICT[x][a]) && stackSentencia.empty()) {
 
                     // ◂ ◂ ◂ ◂ Capturamos un ciclo de push() de la produccion del id que pertenece a las sentencias ▸ ▸ ▸ ▸ //
                     stackSentencia.clear();
@@ -205,9 +206,25 @@ public class Analizador {
                         pushInvertido(stackSentencia, produccion);
 
                         // ◂ ◂ ◂ ◂ Cuando terminos de recorrer toda la produccion, almacenamos la notacion, siempre y cuando tenga contenido ▸ ▸ ▸ ▸ //
-                    } else if (!notacion.isEmpty()) {
-                        SEMANTICO.almacenarNotacion(notacion);
-                        notacion.clear();
+                    } else if (!notacion_infija.isEmpty()) {
+
+                        sentencia = new Sentencia(
+                                notacion_infija.toArray(new Token[0]),
+                                convertirPrefija(notacion_infija),
+                                convertirPosfija(notacion_infija));
+
+                        // ◂ ◂ ◂ ◂ Verificar tipo de datos en notaciones ▸ ▸ ▸ ▸ //
+                        if (verificarDatos(sentencia)) {
+                            SEMANTICO.almacenarNotacion(sentencia);
+                        } else {
+                            // ◂ ◂ ◂ ◂ TODO: Procesa error semantico ▸ ▸ ▸ ▸ //
+                            hayError = true;
+                            System.err.println("HAY ERROR SEMANTICO en la sentencia: " + sentencia);
+                            break;
+                        }
+
+                        // ◂ ◂ ◂ ◂ Volvemos a iniciar de nuevo ▸ ▸ ▸ ▸ //
+                        notacion_infija.clear();
                     }
                 }
 
@@ -219,7 +236,7 @@ public class Analizador {
 
                 // ◂ ◂ ◂ ◂ Pop() siempre y cuando la produccion de la sentencias tenga contenido ▸ ▸ ▸ ▸ //
                 if (!stackSentencia.empty()) {
-                    notacion.add(entrada_a);
+                    notacion_infija.add(entrada_a);
                     stackSentencia.pop();
                 }
                 stackDriver.pop();
@@ -236,9 +253,6 @@ public class Analizador {
                 }
             }
         }
-
-        //TODO: Conversion de notaciones prefija/posfija
-        //TODO: Verificar tipo de datos en notaciones que involucren expresiones de asignacion
 
     }
 
@@ -265,6 +279,7 @@ public class Analizador {
      *
      * @param entrada_a Token de entrada.
      * @return Simbolo terminal de la gramatica.
+     * @implNote Solo se usa en caso de que quieras convertir el token en una constante o identificador.
      */
     private String convertirATerminal(Token entrada_a) {
 
@@ -273,8 +288,8 @@ public class Analizador {
             return entrada_a.LEXEMA;
         }
 
-        // ◂ ◂ ◂ ◂ Enviamos el titulo de clasificacion ▸ ▸ ▸ ▸ //
-        return LEXICO.getClasificacionLexica(entrada_a.LEXEMA).NAME;
+        // ◂ ◂ ◂ ◂ Entonces es una constante o identificador ▸ ▸ ▸ ▸ //
+        return entrada_a.CLASIFICACION_LEXICA;
     }
 
     /**
@@ -366,7 +381,7 @@ public class Analizador {
         if (LEXICO.AFN.esAceptada(subcadena)) {
             token = LEXICO.crearToken(subcadena, numLinea);
         } else {
-            //TODO: Procesar error lexico.
+            // ◂ ◂ ◂ ◂ TODO: Procesa error lexico ▸ ▸ ▸ ▸ //
             token = new TokenError(subcadena, numLinea);
             hayError = true;
             System.err.println("HAY ERROR LEXICO: " + token);
@@ -385,12 +400,12 @@ public class Analizador {
      */
     private void almacenarTablas(Token token) {
 
-        // ◂ ◂ ◂ ◂ ¿Es identificador o constante numerica? se almacena ▸ ▸ ▸ ▸ //
+        // ◂ ◂ ◂ ◂ ¿Es identificador o constante? se almacena ▸ ▸ ▸ ▸ //
         if (LEXICO.esIdentificador(token.LEXEMA)) {
             SEMANTICO.almacenarSimbolo(token);
         }
 
-        if (LEXICO.esConstanteNumerica(token.LEXEMA)) {
+        if (LEXICO.esConstante(token.LEXEMA)) {
             SEMANTICO.almacenarSimbolo(token, token.LEXEMA);
         }
 
@@ -407,8 +422,9 @@ public class Analizador {
      *
      * @param expresion_infija Sentencia o instruccion en forma infija.
      */
-    private void convertirPrefija(Sentencia expresion_infija) {
-        //TODO: GENERAR ALGORITMO DE CONVERSION PREFIJA
+    private Token[] convertirPrefija(LinkedList<Token> expresion_infija) {
+        //TODO: (PENDIENTE) GENERAR ALGORITMO DE CONVERSION PREFIJA
+        return null;
     }
 
     /**
@@ -416,8 +432,62 @@ public class Analizador {
      *
      * @param expresion_infija Sentencia o instruccion en forma infija.
      */
-    private void convertirPosfija(Sentencia expresion_infija) {
-        //TODO: GENERAR ALGORITMO DE CONVERSION POSFIJA
+    private Token[] convertirPosfija(LinkedList<Token> expresion_infija) {
+        Stack<Token> pila = new Stack<>();
+        LinkedList<Token> expresionPosfija = new LinkedList<>();
+
+        for (Token token : expresion_infija) {
+
+            // ◂ ◂ ◂ ◂ ¿Es identificador o constante? se almacena ▸ ▸ ▸ ▸ //
+            if (LEXICO.esConstante(token.LEXEMA) || LEXICO.esIdentificador(token.LEXEMA)) {
+                expresionPosfija.add(token);
+
+            } else if (LEXICO.esOperador(token.LEXEMA)) {
+
+                // ◂ ◂ ◂ ◂ Mientras haya un operador en la pila con mayor o igual precedencia ▸ ▸ ▸ ▸ //
+                while (!pila.isEmpty() && LEXICO.getJerarquia(pila.peek()) >= LEXICO.getJerarquia(token)) {
+                    expresionPosfija.add(pila.pop());
+                }
+
+                // ◂ ◂ ◂ ◂ Agregar el operador a la pila ▸ ▸ ▸ ▸ //
+                pila.push(token);
+
+                // ◂ ◂ ◂ ◂ Si es un paréntesis de apertura, agregar a la pila ▸ ▸ ▸ ▸ //
+            } else if (LEXICO.esCaracterApertura(token.LEXEMA)) {
+                pila.push(token);
+
+                // ◂ ◂ ◂ ◂ Si es un paréntesis de cierre, sacar operadores hasta el paréntesis de apertura ▸ ▸ ▸ ▸ //
+            } else if (LEXICO.esCaracterCierre(token.LEXEMA)) {
+                while (!pila.isEmpty() && !LEXICO.esCaracterApertura(pila.peek().LEXEMA)) {
+                    expresionPosfija.add(pila.pop());
+                }
+
+                // ◂ ◂ ◂ ◂ Eliminar el paréntesis de apertura ▸ ▸ ▸ ▸ //
+                if (!pila.isEmpty() && LEXICO.esCaracterApertura(pila.peek().LEXEMA)) {
+                    pila.pop();
+                }
+
+                // ◂ ◂ ◂ ◂ Agregar palabra reservada como una instruccion al final de los operadores  ▸ ▸ ▸ ▸ //
+            } else if (LEXICO.esPalabraReservada(token.LEXEMA)) {
+                pila.push(token);
+            }
+        }
+
+        // ◂ ◂ ◂ ◂ Sacar cualquier operador restante en la pila ▸ ▸ ▸ ▸ //
+        while (!pila.isEmpty()) {
+            expresionPosfija.add(pila.pop());
+        }
+
+        return expresionPosfija.toArray(new Token[0]);
+    }
+
+    private boolean verificarDatos(Sentencia sentencia){
+        // ◂ ◂ ◂ ◂ TODO: Verificar tipo de datos en notaciones que involucren expresiones de asignacion ▸ ▸ ▸ ▸ //
+
+
+
+
+        return true;
     }
 
 }

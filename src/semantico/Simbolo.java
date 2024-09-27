@@ -100,14 +100,6 @@ public class Simbolo {
     }
 
     /**
-     * Metodo que actualiza el valor que almacena el simbolo.
-     */
-    public void setValor(String valor) {
-        //TODO: SI ES UNA CONSTANTE, ASIGNARLO POR DEFAULT, si no, actualizarlo cada que se evalua en el arbol de expresiones
-        this.valor = valor;
-    }
-
-    /**
      * Metodo que actualiza el numero de lineas del simbolo.
      *
      * @param num_linea Numero de linea en donde se ubica el simbolo en el codigo fuente.

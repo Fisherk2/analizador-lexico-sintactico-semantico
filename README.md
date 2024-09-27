@@ -13,7 +13,7 @@ El analizador funciona dependiendo del lenguaje en que debe ser escrito el codig
 
 - El automata que acepta las palabras del lenguaje, este AFN se encuentra configurado en un fichero JSON ubicado en `src/archivos/automata.json`.
 
-- La tabla de clasificacion lexica, igualmente configurable en un archivo JSON ubicada en `src/archivos/tabla_clasificacion_lexica.json`.
+- La tabla de categoria lexica, igualmente configurable en un archivo JSON ubicada en `src/archivos/tabla_categoria_lexica.json`.
 
 - Por ultimo la gramatica, hay dos formas distintas de configurarlo, en este caso esta en la forma de JSON ubicado en la misma ruta que las anteriores `src/archivos/gramatica.json`.
 

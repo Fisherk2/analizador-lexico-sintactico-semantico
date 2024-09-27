@@ -1,8 +1,8 @@
 package semantico;
 
 
-import lenguaje.Operadores;
-import lenguaje.Procedencia;
+import lenguaje.Notaciones;
+import lenguaje.Verificador;
 import lexico.Token;
 
 import java.util.LinkedHashSet;
@@ -17,27 +17,29 @@ public class Semantic {
     //▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼ VARIABLES ▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼//
     private final LinkedHashSet<Simbolo> TABLA_DE_SIMBOLOS;
     private final LinkedList<Sentencia> TABLA_DE_NOTACIONES;
-    public final Operadores OPERADORES;
-    public final Procedencia VERIFICADOR;
+    private final Notaciones VERIFICADOR_NOTACIONES;
+    public final Verificador VERIFICADOR_DATOS;
+
 
     /**
      * Clase que almacena las propiedades de un analizador semantico.
      *
-     * @param signos_operacionales   Simbolos representativos de los operadores aritmeticos, de asignacion, comparacion y logicas
-     *                               de una sentencia que pertenezcan al lenguaje.
-     * @param verificador_sentencias Objeto que almacena la de verificacion de datos, sentencias y produccion inicial de la gramatica.
+     * @param verificador_tipos_de_datos Tabla de verificador de datos del lenguaje que establece que tipo de datos son operacionalmente compatibles entre si.
+     * @param verificador_notaciones     Objeto que verifica que IDs de la gramatica pertenecen a las instrucciones o sentencias del programa.
      */
-    public Semantic(Operadores signos_operacionales, Procedencia verificador_sentencias) {
+    public Semantic(Verificador verificador_tipos_de_datos, Notaciones verificador_notaciones) {
         TABLA_DE_SIMBOLOS = new LinkedHashSet<>();
         TABLA_DE_NOTACIONES = new LinkedList<>();
-        this.OPERADORES = signos_operacionales;
-        this.VERIFICADOR = verificador_sentencias;
+        VERIFICADOR_DATOS = verificador_tipos_de_datos;
+        VERIFICADOR_NOTACIONES = verificador_notaciones;
     }
 
     @Override
     public String toString() {
 
         String resultado = "\n▼ △ ▼ △ ▼ △ ▼ △ ▼ △ ▼ △ ▼ △ ▼ △ ▼ △ ▼ △ ▼ SEMANTICO ▼ △ ▼ △ ▼ △ ▼ △ ▼ △ ▼ △ ▼ △ ▼ △ ▼ △ ▼ △ ▼\n";
+
+        resultado += VERIFICADOR_DATOS;
 
         resultado += "\n⧖ ⧗ ⧖ ⧗ ⧖ ⧗ ⧖ ⧗ ⧖ ⧗ ⧖ ⧗ ⧖ ⧗ ⧖ ⧗ ⧖ ⧗ ⧖  TABLA DE SIMBOLOS COMPLETA ⧖ ⧗ ⧖ ⧗ ⧖ ⧗ ⧖ ⧗ ⧖ ⧗ ⧖ ⧗ ⧖ ⧗ ⧖ ⧗ ⧖ ⧗ ⧖\n";
 
@@ -98,12 +100,12 @@ public class Semantic {
     }
 
     /**
-     * Metodo que almacena sentencias infijas a la tabla de notaciones.
+     * Metodo que almacena sentencias a la tabla de notaciones.
      *
-     * @param notacion_infija Sentencia infija.
+     * @param notacion  Sentencia o Instruccion del programa.
      */
-    public void almacenarNotacion(LinkedList<Token> notacion_infija) {
-        TABLA_DE_NOTACIONES.add(new Sentencia(notacion_infija.toArray(new Token[0])));
+    public void almacenarNotacion(Sentencia notacion) {
+        TABLA_DE_NOTACIONES.add(notacion);
     }
 
     /**
@@ -163,34 +165,12 @@ public class Semantic {
      * @return ¿Es una sentencia o instruccion?
      */
     public boolean esSentencia(int predict_x_a) {
-        for (int id : VERIFICADOR.SENTENCES) {
+        for (int id : VERIFICADOR_NOTACIONES.SENTENCES) {
             if (id == predict_x_a) {
                 return true;
             }
         }
         return false;
-    }
-
-    /**
-     * Funcion que verifica si el indice del predict gramatical coincide con el id que establece el inicio del programa de la gramatica.
-     *
-     * @param predict_x_a Indice del Predict[x,a] de la gramatica.
-     * @return ¿Es la produccion que inicia el programa?
-     */
-    public boolean esInicio(int predict_x_a) {
-        return VERIFICADOR.INIT == predict_x_a;
-    }
-
-    /**
-     * Funcion que verifica que el token sea un operador.
-     * @param atributo Atributo de su clasificacion lexica del token.
-     * @return ¿Es un operador?
-     */
-    public boolean esOperador(int atributo) {
-        return OPERADORES.esSignoAritmetico(atributo)
-                || OPERADORES.esSignoAsignacion(atributo)
-                || OPERADORES.esSignoComparacion(atributo)
-                || OPERADORES.esSignoLogico(atributo);
     }
 
 }

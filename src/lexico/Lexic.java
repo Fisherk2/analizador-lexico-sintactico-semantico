@@ -3,10 +3,7 @@ package lexico;
 import lenguaje.Automata;
 import lenguaje.Clasificacion;
 
-import java.math.BigDecimal;
-import java.util.LinkedHashSet;
 import java.util.LinkedList;
-import java.util.regex.PatternSyntaxException;
 
 /**
  * Clase que almacena las propiedades de un analizador lexico.
@@ -15,44 +12,24 @@ public class Lexic {
 
     //▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼ VARIABLES ▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼//
     public final Automata AFN;
-    private final Clasificacion[] TABLA_CLASIFICACION_LEXICA;
+    private final Clasificacion CLASIFICACION_LEXICA;
     private final LinkedList<Token> TABLA_DE_TOKENS;
-    private final LinkedHashSet<Clasificacion> TABLA_PALABRAS_RESERVADAS;
-    private final LinkedHashSet<String> PRIORIDAD_CLASIFICACION;
     private int numIdentificadores;
 
     /**
      * Clase que almacena las propiedades de un analizador lexico dependiendo de las palabras que acepta el lenguaje.
      *
-     * @param automata                   Automata finito no determinista.
-     * @param tabla_clasificacion_lexica Tabla de clasificacion lexica que contenga descripcion de clasificacion, regex y atributo.
-     * @implNote La tabla de clasificacion lexica DEBE ESTAR ORDENADO DEPENDIENDO DE LA PRIORIDAD DE CLASIFICACION LEXICA,
-     * por lo tanto, las PRIMERAS clasificaciones deben ser palabras reservadas, y AL FINAL de la tabla,
-     * siempre debe ir los identificadores, el orden de las demas clasificaciones dependera mucho
-     * del diseño del analizador lexico.
+     * @param automata             Automata finito no determinista.
+     * @param clasificacion_lexica Tabla de clasificacion lexica que contenga descripcion de clasificacion, regex y atributo.
      */
-    public Lexic(Automata automata, Clasificacion[] tabla_clasificacion_lexica) {
+    public Lexic(Automata automata, Clasificacion clasificacion_lexica) {
 
-        TABLA_PALABRAS_RESERVADAS = new LinkedHashSet<>();
         TABLA_DE_TOKENS = new LinkedList<>();
-        PRIORIDAD_CLASIFICACION = new LinkedHashSet<>();
         AFN = automata;
-        TABLA_CLASIFICACION_LEXICA = tabla_clasificacion_lexica;
+        CLASIFICACION_LEXICA = clasificacion_lexica;
 
         numIdentificadores = -1;
 
-        // ◂ ◂ ◂ ◂ Almacenamos clasificaciones en orden de prioridad sin duplicados ▸ ▸ ▸ ▸ //
-        for (Clasificacion clasificacion : TABLA_CLASIFICACION_LEXICA) {
-            PRIORIDAD_CLASIFICACION.add(clasificacion.NAME);
-        }
-
-        // ◂ ◂ ◂ ◂ Almacenamos las palabras reservadas ▸ ▸ ▸ ▸ //
-        for (Clasificacion clasificacion : TABLA_CLASIFICACION_LEXICA) {
-
-            if (esPalabraReservada(clasificacion.REGEX)) {
-                TABLA_PALABRAS_RESERVADAS.add(clasificacion);
-            }
-        }
     }
 
     @Override
@@ -60,16 +37,12 @@ public class Lexic {
 
         String resultado = "\n▼ △ ▼ △ ▼ △ ▼ △ ▼ △ ▼ △ ▼ △ ▼ △ ▼ △ ▼ △ ▼ LEXICO ▼ △ ▼ △ ▼ △ ▼ △ ▼ △ ▼ △ ▼ △ ▼ △ ▼ △ ▼ △ ▼\n";
 
-        resultado += "\n⧖ ⧗ ⧖ ⧗ ⧖ ⧗ ⧖ ⧗ ⧖ ⧗ ⧖ ⧗ ⧖ ⧗ ⧖ ⧗ ⧖ ⧗ ⧖  TABLA DE CLASIFICACION LEXICA ⧖ ⧗ ⧖ ⧗ ⧖ ⧗ ⧖ ⧗ ⧖ ⧗ ⧖ ⧗ ⧖ ⧗ ⧖ ⧗ ⧖ ⧗ ⧖\n";
-
-        for (Clasificacion clasificacion : TABLA_CLASIFICACION_LEXICA) {
-            resultado += clasificacion + "\n";
-        }
+        resultado += CLASIFICACION_LEXICA;
 
         resultado += "\n⧖ ⧗ ⧖ ⧗ ⧖ ⧗ ⧖ ⧗ ⧖ ⧗ ⧖ ⧗ ⧖ ⧗ ⧖ ⧗ ⧖ ⧗ ⧖  TABLA DE PALABRAS RESERVADAS ⧖ ⧗ ⧖ ⧗ ⧖ ⧗ ⧖ ⧗ ⧖ ⧗ ⧖ ⧗ ⧖ ⧗ ⧖ ⧗ ⧖ ⧗ ⧖\n";
 
-        for (Clasificacion clasificacion : TABLA_PALABRAS_RESERVADAS) {
-            resultado += "[" + clasificacion.REGEX + "][" + clasificacion.ATTRIBUTE + "]" + "\n";
+        for (Clasificacion.Categoria categoria : CLASIFICACION_LEXICA.WORD_RESERVES) {
+            resultado += "[" + categoria.REGEX + "][" + categoria.ATTRIBUTE + "]" + "\n";
         }
 
         resultado += "\n⧖ ⧗ ⧖ ⧗ ⧖ ⧗ ⧖ ⧗ ⧖ ⧗ ⧖ ⧗ ⧖ ⧗ ⧖ ⧗ ⧖ ⧗ ⧖  TABLA DE TOKENS COMPLETA ⧖ ⧗ ⧖ ⧗ ⧖ ⧗ ⧖ ⧗ ⧖ ⧗ ⧖ ⧗ ⧖ ⧗ ⧖ ⧗ ⧖ ⧗ ⧖\n";
@@ -93,29 +66,6 @@ public class Lexic {
         TABLA_DE_TOKENS.add(token);
     }
 
-    /**
-     * Funcion que sirve para saber que tipo de clasificacion lexica pertenece al lexema procesado.
-     *
-     * @param lexema Nombre propio, cadena, palabra que NO ESTE VACIA.
-     * @return Clasificacion lexica que pertenece a dicho lexema.
-     */
-    public Clasificacion getClasificacionLexica(String lexema) {
-        for (Clasificacion clasificacion : TABLA_CLASIFICACION_LEXICA) {
-            try {
-
-                // ◂ ◂ Si alguna de las expresiones regulares que se encuentren en las clasificaciones coincide ▸ ▸ //
-                if (lexema.matches(clasificacion.REGEX)) {
-                    return clasificacion;
-                }
-
-            } catch (PatternSyntaxException ex) {
-                System.err.println("ERROR, NO PUEDE ANALIZAR LA EXPRESION REGULAR: " + clasificacion.REGEX + "\n CORRIJALO PARA CONTINUAR EVALUANDO.");
-            }
-
-        }
-
-        return new Clasificacion("LEXER ERROR", "", -1);
-    }
 
     /**
      * Funcion que genera un token de los lexemas que son aceptados o rechazados por el AFN.
@@ -126,7 +76,7 @@ public class Lexic {
     public Token crearToken(String lexema, int numDeLinea) {
 
         // ◂ ◂ ◂ ◂ Obtenemos la clasificacion lexica que pertenece a ese lexema ▸ ▸ ▸ ▸ //
-        Clasificacion lexemaClasificado = getClasificacionLexica(lexema);
+        Clasificacion.Categoria lexemaClasificado = CLASIFICACION_LEXICA.clasificarLexema(lexema);
 
         // ◂ ◂ ◂ ◂ Asignar numero de atributo en cada identificador diferente comenzando desde su atributo base ▸ ▸ ▸ ▸ //
         if (esIdentificador(lexema)) {
@@ -137,22 +87,6 @@ public class Lexic {
         return new Token(lexema, lexemaClasificado.NAME, lexemaClasificado.ATTRIBUTE, numDeLinea);
     }
 
-    /**
-     * Funcion que devuelve el titulo de clasificacion lexica dependiendo de su prioridad de analisis lexico.
-     *
-     * @param nivel_de_prioridad Nivel de prioridad donde el 0 es el mas importante.
-     * @return Titulo de la clasificacion lexica perteneciente a ese nivel de prioridad.
-     * @implNote 0 = Palabras reservadas,
-     * n-1 ó n < 0 = Identificadores.
-     */
-    public String getPrioridadLexica(int nivel_de_prioridad) {
-
-        if (nivel_de_prioridad >= PRIORIDAD_CLASIFICACION.size() || nivel_de_prioridad < 0) {
-            return new LinkedList<>(PRIORIDAD_CLASIFICACION).getLast();
-        }
-
-        return new LinkedList<>(PRIORIDAD_CLASIFICACION).get(nivel_de_prioridad);
-    }
 
     /**
      * Metodo que devuelve la tabla de tokens del analizador lexico
@@ -163,6 +97,17 @@ public class Lexic {
         return TABLA_DE_TOKENS;
     }
 
+    /**
+     * Funcion que devuelve el nivel jerarquico o precedencia de operadores.
+     *
+     * @param token Nombre propio, caracter o cadena de texto.
+     * @return Precedencia de operaciones.
+     * @implNote Asignacion, comparacion y booleanos = 0
+     */
+    public int getJerarquia(Token token) {
+        return CLASIFICACION_LEXICA.OPERATORS.precedencia(token.LEXEMA);
+    }
+
     //▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼ VALIDACIONES ▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼//
 
     /**
@@ -170,24 +115,19 @@ public class Lexic {
      *
      * @param caracter Caracter a evaluar.
      * @return ¿Forma parte del alfabeto de caracteres simples del lenguaje?.
-     * @implNote Incluye otros caracteres que consideres especiales que comiencen desde el atributo 256 hasta el 299.
      */
     public boolean esCaracterEspecial(char caracter) {
-
-        // ◂ ◂ ◂ ◂ Los caracteres simples tendran un rango entre 0 a 255, y los especiales adicionales del 256 al 299 ▸ ▸ ▸ ▸ //
-        return getClasificacionLexica(String.valueOf(caracter)).ATTRIBUTE >= 0 && getClasificacionLexica(String.valueOf(caracter)).ATTRIBUTE < 300;
+        return CLASIFICACION_LEXICA.esOperador(String.valueOf(caracter)) || CLASIFICACION_LEXICA.esCaracterEspecial(String.valueOf(caracter));
     }
 
     /**
      * Funcion que verifica si la cadena de caracteres especiales forma parte del alfabeto de caracteres compuestos del lenguaje.
      *
-     * @param caracterEspecialCompuesto lexema con caracteres especiales compuestos.
+     * @param caracterEspecialCompuesto Lexema con caracteres especiales compuestos.
      * @return ¿Forma parte del alfabeto de caracteres especiales del lenguaje?
      */
     public boolean esCaracterEspecial(String caracterEspecialCompuesto) {
-
-        // ◂ ◂ ◂ ◂ Los caracteres simples tendran un rango entre 0 a 255, y los especiales adicionales del 256 al 299 ▸ ▸ ▸ ▸ //
-        return getClasificacionLexica(caracterEspecialCompuesto).ATTRIBUTE >= 0 && getClasificacionLexica(caracterEspecialCompuesto).ATTRIBUTE < 300;
+        return CLASIFICACION_LEXICA.esOperador(caracterEspecialCompuesto) || CLASIFICACION_LEXICA.esCaracterEspecial(caracterEspecialCompuesto);
     }
 
     /**
@@ -207,9 +147,7 @@ public class Lexic {
      * @return ¿Es un identificador?
      */
     public boolean esIdentificador(String lexema) {
-
-        // ◂ ◂ ◂ ◂ Los identificadores SIEMPRE estaran al fondo de la tabla de clasificacion lexica ▸ ▸ ▸ ▸ //
-        return getClasificacionLexica(lexema).NAME.equals(getPrioridadLexica(-1));
+        return CLASIFICACION_LEXICA.esIdentificador(lexema);
     }
 
     /**
@@ -219,31 +157,50 @@ public class Lexic {
      * @return ¿Es una palabra reservada?
      */
     public boolean esPalabraReservada(String lexema) {
-
-        // ◂ ◂ ◂ ◂ Las palabras reservadas SIEMPRE seran los primeros elementos de la tabla de clasificacion lexica ▸ ▸ ▸ ▸ //
-        return getClasificacionLexica(lexema).NAME.equals(getPrioridadLexica(0));
+        return CLASIFICACION_LEXICA.esPalabraReservada(lexema);
     }
 
     /**
-     * Funcion que evalua si el lexema pertenece a una constante numerica.
+     * Funcion que evalua si el lexema pertenece a una constante numerica o una cadena.
      *
      * @param lexema Nombre propio del token.
-     * @return ¿Es una constante numerica?
+     * @return ¿Es una constante?
      */
-    public boolean esConstanteNumerica(String lexema) {
+    public boolean esConstante(String lexema) {
+        return CLASIFICACION_LEXICA.esNumeroEntero(lexema) || CLASIFICACION_LEXICA.esNumeroFlotante(lexema) || CLASIFICACION_LEXICA.esCadenaTexto(lexema);
+    }
 
-        // ◂ ◂ ◂ ◂ En caso de que el lenguaje acepte coma en vez de punto en cualquier numero decimal ▸ ▸ ▸ ▸ //
-        lexema = lexema.replace(",", ".");
+    /**
+     * Funcion que evalua si el lexema pertenece a un caracter de apertura operacional.
+     *
+     * @param lexema Nombre propio del token.
+     * @return ¿Es un signo de apertura?
+     */
+    public boolean esCaracterApertura(String lexema) {
+        return CLASIFICACION_LEXICA.OPERATORS.esSignoApertura(lexema);
+    }
 
-        try {
+    /**
+     * Funcion que evalua si el lexema pertenece a un caracter de cerradura operacional.
+     *
+     * @param lexema Nombre propio del token.
+     * @return ¿Es un signo de cierre?
+     */
+    public boolean esCaracterCierre(String lexema) {
+        return CLASIFICACION_LEXICA.OPERATORS.esSignoCierre(lexema);
+    }
 
-            // ◂ ◂ ◂ ◂ En caso de que se manejen numeros enormes ▸ ▸ ▸ ▸ //
-            new BigDecimal(lexema);
-
-            return true;
-        } catch (NumberFormatException error) {
-            return false;
-        }
+    /**
+     * Funcion que evalua si el lexema pertenece a un operador.
+     *
+     * @param lexema Nombre propio del token.
+     * @return ¿Es un operador?
+     */
+    public boolean esOperador(String lexema) {
+        return CLASIFICACION_LEXICA.OPERATORS.esSignoAritmetico(lexema)
+                || CLASIFICACION_LEXICA.OPERATORS.esSignoAsignacion(lexema)
+                || CLASIFICACION_LEXICA.OPERATORS.esSignoComparacion(lexema)
+                || CLASIFICACION_LEXICA.OPERATORS.esSignoLogico(lexema);
     }
 
 }
