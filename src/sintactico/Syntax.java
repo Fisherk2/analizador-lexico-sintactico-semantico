@@ -553,6 +553,23 @@ public class Syntax {
         return new String[]{""};
     }
 
+    /**
+     * Funcion que regresa simbolo no terminal que representa el ID de produccion.
+     *
+     * @param id_produccion Numero de produccion de la gramatica.
+     * @return Simbolo no terminal de la produccion.
+     */
+    public String obtenerNoTerminal(Integer id_produccion) {
+
+        for (Gramatica.Produccion produccion : GRAMATICA.P) {
+            if (produccion.ID == id_produccion) {
+                return produccion.N;
+            }
+        }
+
+        return "ERROR: NO EXISTE ESE SIMBOLO NO TERMINAL EN LA PRODUCCION";
+    }
+
     //▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼ VALIDACIONES ▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼//
 
     /**

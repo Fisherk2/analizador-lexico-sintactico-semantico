@@ -3,6 +3,7 @@ import lexico.Token;
 import lexico.TokenError;
 import semantico.Semantic;
 import semantico.Sentencia;
+import semantico.Simbolo;
 import sintactico.Syntax;
 
 import java.util.LinkedList;
@@ -10,7 +11,7 @@ import java.util.Scanner;
 import java.util.Stack;
 
 /**
- * Clase que analiza el codigo fuente usando un analizador lexico - sintactico.
+ * Clase que analiza el codigo fuente usando un analizador lexico - sintactico - semantico.
  */
 public class Analizador {
 
@@ -20,7 +21,7 @@ public class Analizador {
     private final Syntax SINTACTICO;
     private final Semantic SEMANTICO;
 
-    private Stack<String> stackDriver;
+    private final Stack<String> STACK_DRIVER;
     private LinkedList<String> lineasCodigoFuente;
     private boolean hayError;
     private int numLineaCodigo;
@@ -39,6 +40,7 @@ public class Analizador {
         LEXICO = analizador_lexer;
         SINTACTICO = analizador_parser;
         SEMANTICO = analizador_semantic;
+        STACK_DRIVER = new Stack<>();
 
     }
 
@@ -52,15 +54,21 @@ public class Analizador {
     public void analizar_codigo_fuente(String codigo) {
 
         // ◂ ◂ ◂ ◂ Iniciamos contadores de estados de lectura ▸ ▸ ▸ ▸ //
-        hayError = false;
         numLineaCodigo = 1;
         bof = 0;
         eof = 0;
 
+        hayError = false;
         lineasCodigoFuente = separarPorLineas(codigo);
+
         firstLLDRIVER();
         System.out.println("\n■▣□▣■▣□▣■▣□▣■▣□▣■▣□▣■▣□▣ ANALISIS LEXICO-SINTACTICO TERMINADO ■▣□▣■▣□▣■▣□▣■▣□▣■▣□▣■▣□▣\n");
-        secondLLDRIVER();
+
+
+        STACK_DRIVER.clear();
+        STACK_DRIVER.push(SINTACTICO.getSimboloInicial());
+        secondLLDRIVER(STACK_DRIVER, 0, 0);
+        System.out.println("\n■▣□▣■▣□▣■▣□▣■▣□▣■▣□▣■▣□▣ ANALISIS SEMANTICO TERMINADO ■▣□▣■▣□▣■▣□▣■▣□▣■▣□▣■▣□▣\n");
     }
 
     /**
@@ -92,33 +100,33 @@ public class Analizador {
     private void firstLLDRIVER() {
 
         // ◂ ◂ ◂ ◂ Iniciamos nueva pila vacia ▸ ▸ ▸ ▸ //
-        stackDriver = new Stack<>();
+        STACK_DRIVER.clear();
 
         // ◂ ◂ ◂ ◂ Push(s) -- poner el símbolo inicial en la pila vacía ▸ ▸ ▸ ▸ //
-        stackDriver.push(SINTACTICO.getSimboloInicial());
+        STACK_DRIVER.push(SINTACTICO.getSimboloInicial());
 
         // ◂ ◂ ◂ ◂ Asigne a [x] el símbolo en la parte alta de la pila ▸ ▸ ▸ ▸ //
-        int x = SINTACTICO.obtenerIndiceNoTerminal(stackDriver.peek());
+        int x = SINTACTICO.obtenerIndiceNoTerminal(STACK_DRIVER.peek());
 
         // ◂ ◂ ◂ ◂ Asigne a [a] el token de entrada ▸ ▸ ▸ ▸ //
         Token entrada_a = pedirToken();
         int a = SINTACTICO.obtenerIndiceTerminal(convertirATerminal(entrada_a));
 
         // ◂ ◂ ◂ ◂ while not stack empty loop ▸ ▸ ▸ ▸ //
-        while (!stackDriver.empty()) {
+        while (!STACK_DRIVER.empty()) {
 
             // ◂ ◂ ◂ ◂ If x in noterminals Then ▸ ▸ ▸ ▸ //
-            if (SINTACTICO.esNoTerminal(stackDriver.peek())) {
+            if (SINTACTICO.esNoTerminal(STACK_DRIVER.peek())) {
 
                 // ◂ ◂ ◂ ◂ Obtenemos el indice de [x] de la matriz predictiva ▸ ▸ ▸ ▸ //
-                x = SINTACTICO.obtenerIndiceNoTerminal(stackDriver.peek());
+                x = SINTACTICO.obtenerIndiceNoTerminal(STACK_DRIVER.peek());
 
                 // ◂ ◂ ◂ ◂ If Predict[x,a] !=0 ▸ ▸ ▸ ▸ //
                 if (SINTACTICO.PREDICT[x][a] != 0) {
 
                     // ◂ ◂ ◂ ◂ Un Pop() y un ciclo de Push() de la produccion del id que se encuentra en Predict[x,a] ▸ ▸ ▸ ▸ //
-                    stackDriver.pop();
-                    pushInvertido(stackDriver, SINTACTICO.obtenerProduccion(SINTACTICO.PREDICT[x][a]));
+                    STACK_DRIVER.pop();
+                    pushInvertido(STACK_DRIVER, SINTACTICO.obtenerProduccion(SINTACTICO.PREDICT[x][a]));
 
                 } else {
 
@@ -131,10 +139,10 @@ public class Analizador {
             } else {
 
                 // ◂ ◂ ◂ ◂ If x == a Then ▸ ▸ ▸ ▸ //
-                if (sonElMismoSimboloTerminal(stackDriver.peek(), convertirATerminal(entrada_a))) {
+                if (sonElMismoSimboloTerminal(STACK_DRIVER.peek(), convertirATerminal(entrada_a))) {
 
                     // ◂ ◂ ◂ ◂ Pop() ▸ ▸ ▸ ▸ //
-                    stackDriver.pop();
+                    STACK_DRIVER.pop();
                     // ◂ ◂ ◂ ◂ a = scanner() ▸ ▸ ▸ ▸ //
                     entrada_a = pedirToken();
                     a = SINTACTICO.obtenerIndiceTerminal(convertirATerminal(entrada_a));
@@ -150,7 +158,7 @@ public class Analizador {
         }
 
         // ◂ ◂ ◂ ◂ Validar si la pila esta vacia y el apuntador del token de entrada sea fin de archivo ▸ ▸ ▸ ▸ //
-        if (!stackDriver.empty() && !entrada_a.LEXEMA.equals("EOF")) {
+        if (!STACK_DRIVER.empty() && !entrada_a.LEXEMA.equals("EOF")) {
             // ◂ ◂ ◂ ◂ TODO: Procesa error de sintaxis ▸ ▸ ▸ ▸ //
             hayError = true;
             System.err.println("HAY ERROR DE SINTAXIS: La pila no esta vacia y el apuntador no es fin de archivo");
@@ -160,69 +168,67 @@ public class Analizador {
 
     /**
      * Metodo que genera tabla de notaciones a partir de la tabla de tokens y actualiza la tabla de simbolos.
+     *
+     * @deprecated TODO Metodo que necesita revision, en caso de tener bloques de control, solo procesa sentencias simples.
      */
-    private void secondLLDRIVER() {
+    private void secondLLDRIVER(Stack<String> stackDriver, int indice_token, int id_gramatica) {
 
-        // ◂ ◂ ◂ ◂ Iniciamos nueva pila vacia, el indice de la tabla de tokens y las sentencias que se vayan generado ▸ ▸ ▸ ▸ //
-        stackDriver.empty();
-        int indiceToken = 0;
-        String[] produccion;
+        int x;
+        int tipoSentencia = id_gramatica;
+        String[] produccionActual;
         LinkedList<Token> notacion_infija = new LinkedList<>();
         Stack<String> stackSentencia = new Stack<>();
-        Sentencia sentencia;
-
-        // ◂ ◂ ◂ ◂ Push(s) -- poner el símbolo inicial en la pila vacía ▸ ▸ ▸ ▸ //
-        stackDriver.push(SINTACTICO.getSimboloInicial());
-
-        // ◂ ◂ ◂ ◂ Asignar a [x] el símbolo en la parte alta de la pila ▸ ▸ ▸ ▸ //
-        int x = SINTACTICO.obtenerIndiceNoTerminal(stackDriver.peek());
 
         // ◂ ◂ ◂ ◂ Asigne a [a] el token de entrada ▸ ▸ ▸ ▸ //
-        Token entrada_a = LEXICO.getTABLA_DE_TOKENS().get(indiceToken++);
+        Token entrada_a = LEXICO.getTABLA_DE_TOKENS().get(indice_token++);
         int a = SINTACTICO.obtenerIndiceTerminal(convertirATerminal(entrada_a));
 
         // ◂ ◂ ◂ ◂ while not stack empty loop ▸ ▸ ▸ ▸ //
-        while (!stackDriver.empty()) {
+        while (!stackDriver.empty() && indice_token < LEXICO.getTABLA_DE_TOKENS().size()) {
 
             // ◂ ◂ ◂ ◂ If x in noterminals Then ▸ ▸ ▸ ▸ //
             if (SINTACTICO.esNoTerminal(stackDriver.peek())) {
 
                 // ◂ ◂ ◂ ◂ Obtenemos el indice de [x] de la matriz predictiva ▸ ▸ ▸ ▸ //
                 x = SINTACTICO.obtenerIndiceNoTerminal(stackDriver.peek());
-                produccion = SINTACTICO.obtenerProduccion(SINTACTICO.PREDICT[x][a]);
+                produccionActual = SINTACTICO.obtenerProduccion(SINTACTICO.PREDICT[x][a]);
 
                 // ◂ ◂ ◂ ◂ Si Predict[x,a] == conjunto de indices que establecen las sentencias gramaticales ▸ ▸ ▸ ▸ //
-                if (SEMANTICO.esSentencia(SINTACTICO.PREDICT[x][a]) && stackSentencia.empty()) {
+                if (SEMANTICO.esSentencia(SINTACTICO.PREDICT[x][a])) {
+
+                    tipoSentencia = SINTACTICO.PREDICT[x][a];
 
                     // ◂ ◂ ◂ ◂ Capturamos un ciclo de push() de la produccion del id que pertenece a las sentencias ▸ ▸ ▸ ▸ //
-                    stackSentencia.clear();
-                    pushInvertido(stackSentencia, produccion);
+                    if (stackSentencia.empty()) {
+                        //stackSentencia.clear();
+                        pushInvertido(stackSentencia, produccionActual);
+
+                        id_gramatica = tipoSentencia;
+
+                        // ◂ ◂ ◂ ◂ TODO: Se deriva la produccion en una pila de sentencias aparte de forma recursiva ▸ ▸ ▸ ▸ //
+                    } else {
+                        // ◂ ◂ ◂ ◂ Generar notacion cuando se haya encontrado una sentencia derivable ▸ ▸ ▸ ▸ //
+                        almacenarTablaNotacion(notacion_infija, id_gramatica);
+
+                        // ◂ ◂ ◂ ◂ Volvemos a iniciar de nuevo ▸ ▸ ▸ ▸ //
+                        notacion_infija.clear();
+
+                        // ◂ ◂ ◂ ◂ Capturamos un ciclo de push() de la produccion del id que pertenece a la sentencia original y procesarlo aparte ▸ ▸ ▸ ▸ //
+                        stackSentencia.pop();
+                        secondLLDRIVER(pushInvertidoNuevo(produccionActual), indice_token, id_gramatica);
+                    }
 
                 } else {
 
                     // ◂ ◂ ◂ ◂ Seguimos derivando producciones, hasta que vaciemos la produccion de la sentencia ▸ ▸ ▸ ▸ //
                     if (!stackSentencia.empty()) {
                         stackSentencia.pop();
-                        pushInvertido(stackSentencia, produccion);
+                        pushInvertido(stackSentencia, produccionActual);
 
                         // ◂ ◂ ◂ ◂ Cuando terminos de recorrer toda la produccion, almacenamos la notacion, siempre y cuando tenga contenido ▸ ▸ ▸ ▸ //
                     } else if (!notacion_infija.isEmpty()) {
 
-                        sentencia = new Sentencia(
-                                notacion_infija.toArray(new Token[0]),
-                                convertirPrefija(notacion_infija),
-                                convertirPosfija(notacion_infija));
-
-                        // ◂ ◂ ◂ ◂ Verificar tipo de datos en notaciones ▸ ▸ ▸ ▸ //
-                        if (verificarDatos(sentencia)) {
-                            SEMANTICO.almacenarNotacion(sentencia);
-                        } else {
-                            // ◂ ◂ ◂ ◂ TODO: Procesa error semantico ▸ ▸ ▸ ▸ //
-                            hayError = true;
-                            System.err.println("HAY ERROR SEMANTICO en la sentencia: " + sentencia);
-                            break;
-                        }
-
+                        almacenarTablaNotacion(notacion_infija, tipoSentencia);
                         // ◂ ◂ ◂ ◂ Volvemos a iniciar de nuevo ▸ ▸ ▸ ▸ //
                         notacion_infija.clear();
                     }
@@ -230,7 +236,7 @@ public class Analizador {
 
                 // ◂ ◂ ◂ ◂ Un Pop() y un ciclo de Push() de la produccion del id que se encuentra en Predict[x,a] ▸ ▸ ▸ ▸ //
                 stackDriver.pop();
-                pushInvertido(stackDriver, produccion);
+                pushInvertido(stackDriver, produccionActual);
 
             } else {
 
@@ -242,18 +248,10 @@ public class Analizador {
                 stackDriver.pop();
 
                 // ◂ ◂ ◂ ◂ a = scanner() ▸ ▸ ▸ ▸ //
-                if (indiceToken < LEXICO.getTABLA_DE_TOKENS().size()) {
-
-                    entrada_a = LEXICO.getTABLA_DE_TOKENS().get(indiceToken++);
-                    a = SINTACTICO.obtenerIndiceTerminal(convertirATerminal(entrada_a));
-
-                } else {
-                    // ◂ ◂ ◂ ◂ Fin de la tabla de tokens ▸ ▸ ▸ ▸ //
-                    break;
-                }
+                entrada_a = LEXICO.getTABLA_DE_TOKENS().get(indice_token++);
+                a = SINTACTICO.obtenerIndiceTerminal(convertirATerminal(entrada_a));
             }
         }
-
     }
 
     /**
@@ -272,6 +270,28 @@ public class Analizador {
             }
 
         }
+    }
+
+    /**
+     * Funcion que hace push a una pila nueva los elementos de la produccion de izquierda a derecha.
+     *
+     * @param produccion Produccion que contiene simbolos terminales y no terminales.
+     */
+    private Stack<String> pushInvertidoNuevo(String[] produccion) {
+
+        Stack<String> pilaNueva = new Stack<>();
+
+        for (int i = produccion.length - 1; i >= 0; i--) {
+
+            // ◂ ◂ ◂ ◂ Si hay vacios en la produccion, no se agrega a la pila ▸ ▸ ▸ ▸ //
+            if (!produccion[i].isEmpty()) {
+                pilaNueva.push(produccion[i]);
+
+            }
+
+        }
+
+        return pilaNueva;
     }
 
     /**
@@ -342,13 +362,13 @@ public class Analizador {
         }
 
         // ◂ ◂ ◂ ◂ ¿Es una letra o digito? ▸ ▸ ▸ ▸ //
-        if (!LEXICO.esCaracterEspecial(linea.charAt(bof)) && !LEXICO.esBlanco(linea.charAt(bof))) {
+        if (!LEXICO.esCaracterSimple(linea.charAt(bof)) && !LEXICO.esBlanco(linea.charAt(bof))) {
 
             // ◂ ◂ ◂ ◂ Igualamos apuntadores para recorrer la cinta ▸ ▸ ▸ ▸ //
             eof = bof;
 
             // ◂ ◂ ◂ ◂ Recorrera caracteres hasta terminar la linea, encontrar algun caracter especial o un blanco ▸ ▸ ▸ ▸ //
-            while (eof < linea.length() && !LEXICO.esCaracterEspecial(linea.charAt(eof)) && !LEXICO.esBlanco(linea.charAt(eof))) {
+            while (eof < linea.length() && !LEXICO.esCaracterSimple(linea.charAt(eof)) && !LEXICO.esBlanco(linea.charAt(eof))) {
                 eof++;
             }
 
@@ -358,12 +378,12 @@ public class Analizador {
             eof = bof;
 
             // ◂ ◂ ◂ ◂ Continuamos mientras los caracteres sean especiales ▸ ▸ ▸ ▸ //
-            while (eof < linea.length() && LEXICO.esCaracterEspecial(linea.charAt(eof))) {
+            while (eof < linea.length() && LEXICO.esCaracterSimple(linea.charAt(eof))) {
                 eof++;
             }
 
             // ◂ ◂ ◂ ◂ Si no es un caracter especial compuesto válido, generamos el lexema a un solo caracter ▸ ▸ ▸ ▸ //
-            if (!LEXICO.esCaracterEspecial(linea.substring(bof, eof))) {
+            if (!LEXICO.esCaracterSimple(linea.substring(bof, eof))) {
                 eof = bof + 1;
             }
 
@@ -418,6 +438,33 @@ public class Analizador {
     }
 
     /**
+     * Metodo que almacena todas las notaciones a su respectiba tabla.
+     *
+     * @param notacionInfija Notacion infija generada a partir de su produccion gramatical.
+     * @param id_sentencia   ID de la gramatica que pertenece a una sentencia o instruccion.
+     */
+    private void almacenarTablaNotacion(LinkedList<Token> notacionInfija, int id_sentencia) {
+        if (!notacionInfija.isEmpty()) {
+
+            // ◂ ◂ ◂ ◂ Generamos la sentencia ▸ ▸ ▸ ▸ //
+            Sentencia sentencia = new Sentencia(
+                    id_sentencia,
+                    notacionInfija.toArray(new Token[0]),
+                    convertirPrefija(notacionInfija),
+                    convertirPosfija(notacionInfija)
+            );
+
+            if (verificarTiposPosfija(sentencia)) {
+                SEMANTICO.almacenarNotacion(sentencia);
+            } else {
+                // ◂ ◂ ◂ ◂ TODO: Procesa error semantico ▸ ▸ ▸ ▸ //
+                hayError = true;
+                System.err.println("HAY ERROR SEMANTICO en la sentencia: " + sentencia);
+            }
+        }
+    }
+
+    /**
      * Funcion que convierte cualquier expresion infija a prefija.
      *
      * @param expresion_infija Sentencia o instruccion en forma infija.
@@ -445,7 +492,7 @@ public class Analizador {
             } else if (LEXICO.esOperador(token.LEXEMA)) {
 
                 // ◂ ◂ ◂ ◂ Mientras haya un operador en la pila con mayor o igual precedencia ▸ ▸ ▸ ▸ //
-                while (!pila.isEmpty() && LEXICO.getJerarquia(pila.peek()) >= LEXICO.getJerarquia(token)) {
+                while (!pila.isEmpty() && LEXICO.precedencia(pila.peek()) >= LEXICO.precedencia(token)) {
                     expresionPosfija.add(pila.pop());
                 }
 
@@ -481,13 +528,151 @@ public class Analizador {
         return expresionPosfija.toArray(new Token[0]);
     }
 
-    private boolean verificarDatos(Sentencia sentencia){
-        // ◂ ◂ ◂ ◂ TODO: Verificar tipo de datos en notaciones que involucren expresiones de asignacion ▸ ▸ ▸ ▸ //
+    /**
+     * Funcion que verifica si la sentencia de entrada es semanticamente correcta.
+     *
+     * @param sentencia Sentencia donde se almacena la notacion posfija.
+     * @return ¿Es semanticamente correcta la sentencia?
+     */
+    private boolean verificarTiposPosfija(Sentencia sentencia) {
 
+        // ◂ ◂ ◂ ◂ Usamos pilas para comparar los tipos de datos de los operandos ▸ ▸ ▸ ▸ //
+        Stack<Simbolo> pilaOperandos = new Stack<>();
+        Simbolo operandoA;
+        Simbolo operandoB;
+        Simbolo operandoTemp;
 
+        for (Token token : sentencia.POSFIJA) {
 
+            if (LEXICO.esOperando(token.LEXEMA)) {
 
+                // ◂ ◂ ◂ ◂ ¿Es constante o variable? ▸ ▸ ▸ ▸ //
+                if (SEMANTICO.contieneTablaSimbolos(token.LEXEMA)) {
+                    pilaOperandos.push(SEMANTICO.getSimbolo(token));
+
+                } else {
+                    // ◂ ◂ ◂ ◂ TODO: Procesa error semantico ▸ ▸ ▸ ▸ //
+                    System.err.println("Error: Operando no reconocido: " + token.LEXEMA);
+                    return false;
+                }
+            } else if (LEXICO.esOperador(token.LEXEMA)) {
+
+                // ◂ ◂ ◂ ◂ Verificamos la compatibilidad entre los operandos ▸ ▸ ▸ ▸ //
+                operandoB = pilaOperandos.pop();
+                operandoA = pilaOperandos.pop();
+                if (!SEMANTICO.sonTiposCompatibles(operandoA.getTipoDeDato(), operandoB.getTipoDeDato(), token)) {
+                    // ◂ ◂ ◂ ◂ TODO: Procesa error semantico ▸ ▸ ▸ ▸ //
+                    System.err.println("Error: Tipos incompatibles en la operación: "
+                            + operandoA.getLEXEMA() + "[" + operandoA.getTipoDeDato() + "] "
+                            + token.LEXEMA + " "
+                            + operandoB.getLEXEMA() + "[" + operandoB.getTipoDeDato() + "] "
+                    );
+                    return false;
+                }
+
+                // ◂ ◂ ◂ ◂ Almacenamos el nuevo operando de manera temporal y determinamos que tipo de dato almacena ▸ ▸ ▸ ▸ //
+                operandoTemp = new Simbolo(token);
+                operandoTemp.setTipoDeDato(obtenerResultado(operandoA.getTipoDeDato(), operandoB.getTipoDeDato(), token));
+                pilaOperandos.push(operandoTemp);
+
+                // ◂ ◂ ◂ ◂ Verificamos si el resultado de la expresion es compatible con el tipo de dato de la variable a almacenar ▸ ▸ ▸ ▸ //
+                if (LEXICO.esAsignador(token.LEXEMA)) {
+                    if (operandoA.getTipoDeDato() < 0) {
+                        // ◂ ◂ ◂ ◂ TODO: Procesa error semantico ▸ ▸ ▸ ▸ //
+                        System.err.println("Error: Variable no declarada: " + operandoA.getLEXEMA());
+                        return false;
+                    }
+
+                    if (LEXICO.esEntero(operandoA.getTipoDeDato())) {
+                        if (SEMANTICO.sonCompatiblesEnteros(operandoA.getTipoDeDato(), pilaOperandos.peek().getTipoDeDato())) {
+                            SEMANTICO.actualizarTipo(operandoA.getATRIBUTO(), pilaOperandos.peek().getTipoDeDato());
+                            return true;
+                        }
+                        // ◂ ◂ ◂ ◂ TODO: Procesa error semantico ▸ ▸ ▸ ▸ //
+                        System.err.println("Error: Tipo incompatible en asignación de enteros de variable "
+                                + operandoA.getLEXEMA() + " [" + operandoA.getTipoDeDato() + "] con "
+                                + pilaOperandos.peek().getLEXEMA() + " [" + pilaOperandos.peek().getTipoDeDato() + "]"
+                        );
+                        return false;
+                    }
+                    if (LEXICO.esFlotante(operandoA.getTipoDeDato())) {
+                        if (SEMANTICO.sonCompatiblesFlotantes(operandoA.getTipoDeDato(), pilaOperandos.peek().getTipoDeDato())) {
+                            SEMANTICO.actualizarTipo(operandoA.getATRIBUTO(), pilaOperandos.peek().getTipoDeDato());
+                            return true;
+                        }
+                        // ◂ ◂ ◂ ◂ TODO: Procesa error semantico ▸ ▸ ▸ ▸ //
+                        System.err.println("Error: Tipo incompatible en asignación de flotantes de variable "
+                                + operandoA.getLEXEMA() + " [" + operandoA.getTipoDeDato() + "] con "
+                                + pilaOperandos.peek().getLEXEMA() + " [" + pilaOperandos.peek().getTipoDeDato() + "]"
+                        );
+                        return false;
+                    }
+                    if (LEXICO.esCadena(operandoA.getTipoDeDato())) {
+                        if (SEMANTICO.sonCompatiblesCadenas(operandoA.getTipoDeDato(), pilaOperandos.peek().getTipoDeDato(), token)) {
+                            SEMANTICO.actualizarTipo(operandoA.getATRIBUTO(), pilaOperandos.peek().getTipoDeDato());
+                            return true;
+                        }
+                        // ◂ ◂ ◂ ◂ TODO: Procesa error semantico ▸ ▸ ▸ ▸ //
+                        System.err.println("Error: Tipo incompatible en asignación de cadenas de variable "
+                                + operandoA.getLEXEMA() + " [" + operandoA.getTipoDeDato() + "] con "
+                                + pilaOperandos.peek().getLEXEMA() + " [" + pilaOperandos.peek().getTipoDeDato() + "]"
+                        );
+                        return false;
+                    }
+
+                    // ◂ ◂ ◂ ◂ TODO: Procesa error semantico ▸ ▸ ▸ ▸ //
+                    System.err.println("Error: Tipo incompatible en asignación de variable "
+                            + operandoA.getLEXEMA() + " [" + operandoA.getTipoDeDato() + "] con "
+                            + pilaOperandos.peek().getLEXEMA() + " [" + pilaOperandos.peek().getTipoDeDato() + "]"
+                    );
+                    return false;
+
+                }
+
+            }
+
+            //TODO: Crear nueva tabla de palabras reservadas que determinen los comandos o acciones de dicha palabra
+            if (LEXICO.esPalabraReservada(token.LEXEMA)) {
+
+                // ◂ ◂ ◂ ◂ Actualizamos la tabla de simbolos en caso de que la sentencia sea declarativa ▸ ▸ ▸ ▸ //
+                if (SEMANTICO.esDeclaracion(sentencia.TYPE_STATEMENT)) {
+
+                    if (pilaOperandos.isEmpty()) {
+                        // ◂ ◂ ◂ ◂ TODO: Procesa error semantico ▸ ▸ ▸ ▸ //
+                        System.err.println("Error: no hay variables a declarar: " + sentencia);
+                        return false;
+                    }
+                    // ◂ ◂ ◂ ◂ Si encontramos un tipo de dato, asignamos el tipo a las variables de la sentencia ▸ ▸ ▸ ▸ //
+                    while (!pilaOperandos.isEmpty()) {
+                        // ◂ ◂ ◂ ◂ TODO: Si la variable ya ha sido declarada, marcar error semantico ▸ ▸ ▸ ▸ //
+                        SEMANTICO.actualizarTipo(pilaOperandos.pop().getATRIBUTO(), token.ATRIBUTO);
+                    }
+                }
+            }
+        }
         return true;
+    }
+
+    /**
+     * La operacion entre dos operandos, dara como resultado un tipo de dato especifico.
+     *
+     * @param operandoA Atributo del operando A.
+     * @param operandoB Atributo del operando B
+     * @param operador  Operador entre los dos operandos.
+     * @return Atributo resultante entre los operandos.
+     */
+    public int obtenerResultado(int operandoA, int operandoB, Token operador) {
+
+        if (SEMANTICO.sonCompatiblesEnteros(operandoA, operandoB)) {
+            return LEXICO.getClasificacionNumeroEntero().ATTRIBUTE;
+        }
+        if (SEMANTICO.sonCompatiblesFlotantes(operandoA, operandoB)) {
+            return LEXICO.getClasificacionNumeroFlotante().ATTRIBUTE;
+        }
+        if (SEMANTICO.sonCompatiblesCadenas(operandoA, operandoB, operador)) {
+            return LEXICO.getClasificacionCadena().ATTRIBUTE;
+        }
+        return -1;
     }
 
 }

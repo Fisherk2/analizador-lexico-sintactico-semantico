@@ -16,7 +16,7 @@ public class Simbolo {
 
     private final int ATRIBUTO;
 
-    private String tipoDeDato;
+    private int tipoDeDato;
 
     private String valor;
 
@@ -36,7 +36,7 @@ public class Simbolo {
 
         LEXEMA = token_lexico.LEXEMA;
         ATRIBUTO = token_lexico.ATRIBUTO;
-        tipoDeDato = "";
+        tipoDeDato = -1;
         valor = "";
         iteraciones = 1;
         LINEAS.add(token_lexico.LINEA_DE_CODIGO);
@@ -55,7 +55,7 @@ public class Simbolo {
 
         LEXEMA = token_lexico.LEXEMA;
         ATRIBUTO = token_lexico.ATRIBUTO;
-        tipoDeDato = token_lexico.CLASIFICACION_LEXICA;
+        tipoDeDato = token_lexico.ATRIBUTO;
         this.valor = valor;
         iteraciones = 1;
         LINEAS.add(token_lexico.LINEA_DE_CODIGO);
@@ -94,8 +94,7 @@ public class Simbolo {
     /**
      * Metodo que identifica que tipo de dato fue declarado el simbolo en concreto.
      */
-    public void setTipoDeDato(String tipo_de_dato) {
-        //TODO: SI ES UN IDENTIFICADOR, CHECAR QUE TIPO DE DATO FUE DECLARADO DICHO IDENTIFICADOR.
+    public void setTipoDeDato(int tipo_de_dato) {
         this.tipoDeDato = tipo_de_dato;
     }
 
@@ -117,7 +116,7 @@ public class Simbolo {
         return ATRIBUTO;
     }
 
-    public String getTipoDeDato() {
+    public int getTipoDeDato() {
         return tipoDeDato;
     }
 

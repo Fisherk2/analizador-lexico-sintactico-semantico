@@ -76,17 +76,16 @@ public class Lexic {
     public Token crearToken(String lexema, int numDeLinea) {
 
         // ◂ ◂ ◂ ◂ Obtenemos la clasificacion lexica que pertenece a ese lexema ▸ ▸ ▸ ▸ //
-        Clasificacion.Categoria lexemaClasificado = CLASIFICACION_LEXICA.clasificarLexema(lexema);
+        Clasificacion.Categoria categoria = CLASIFICACION_LEXICA.clasificarLexema(lexema);
 
         // ◂ ◂ ◂ ◂ Asignar numero de atributo en cada identificador diferente comenzando desde su atributo base ▸ ▸ ▸ ▸ //
         if (esIdentificador(lexema)) {
             numIdentificadores++;
-            return new Token(lexema, lexemaClasificado.NAME, lexemaClasificado.ATTRIBUTE + numIdentificadores, numDeLinea);
+            return new Token(lexema, categoria.NAME, categoria.ATTRIBUTE + numIdentificadores, numDeLinea);
         }
 
-        return new Token(lexema, lexemaClasificado.NAME, lexemaClasificado.ATTRIBUTE, numDeLinea);
+        return new Token(lexema, categoria.NAME, categoria.ATTRIBUTE, numDeLinea);
     }
-
 
     /**
      * Metodo que devuelve la tabla de tokens del analizador lexico
@@ -104,8 +103,20 @@ public class Lexic {
      * @return Precedencia de operaciones.
      * @implNote Asignacion, comparacion y booleanos = 0
      */
-    public int getJerarquia(Token token) {
-        return CLASIFICACION_LEXICA.OPERATORS.precedencia(token.LEXEMA);
+    public int precedencia(Token token) {
+        return CLASIFICACION_LEXICA.OPERATORS.precedenciaAritmetica(token.LEXEMA);
+    }
+
+    public Clasificacion.Categoria getClasificacionNumeroEntero() {
+        return CLASIFICACION_LEXICA.INTEGER_NUMBERS;
+    }
+
+    public Clasificacion.Categoria getClasificacionNumeroFlotante() {
+        return CLASIFICACION_LEXICA.FLOAT_NUMBERS;
+    }
+
+    public Clasificacion.Categoria getClasificacionCadena() {
+        return CLASIFICACION_LEXICA.STRINGS;
     }
 
     //▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼ VALIDACIONES ▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼//
@@ -116,8 +127,11 @@ public class Lexic {
      * @param caracter Caracter a evaluar.
      * @return ¿Forma parte del alfabeto de caracteres simples del lenguaje?.
      */
-    public boolean esCaracterEspecial(char caracter) {
-        return CLASIFICACION_LEXICA.esOperador(String.valueOf(caracter)) || CLASIFICACION_LEXICA.esCaracterEspecial(String.valueOf(caracter));
+    public boolean esCaracterSimple(char caracter) {
+        return CLASIFICACION_LEXICA.esSignoOperacional(String.valueOf(caracter))
+                || CLASIFICACION_LEXICA.esSignoApertura(String.valueOf(caracter))
+                || CLASIFICACION_LEXICA.esSignoCierre(String.valueOf(caracter))
+                || CLASIFICACION_LEXICA.esCaracterEspecial(String.valueOf(caracter));
     }
 
     /**
@@ -126,8 +140,11 @@ public class Lexic {
      * @param caracterEspecialCompuesto Lexema con caracteres especiales compuestos.
      * @return ¿Forma parte del alfabeto de caracteres especiales del lenguaje?
      */
-    public boolean esCaracterEspecial(String caracterEspecialCompuesto) {
-        return CLASIFICACION_LEXICA.esOperador(caracterEspecialCompuesto) || CLASIFICACION_LEXICA.esCaracterEspecial(caracterEspecialCompuesto);
+    public boolean esCaracterSimple(String caracterEspecialCompuesto) {
+        return CLASIFICACION_LEXICA.esSignoOperacional(caracterEspecialCompuesto)
+                || CLASIFICACION_LEXICA.esSignoApertura(caracterEspecialCompuesto)
+                || CLASIFICACION_LEXICA.esSignoCierre(caracterEspecialCompuesto)
+                || CLASIFICACION_LEXICA.esCaracterEspecial(caracterEspecialCompuesto);
     }
 
     /**
@@ -177,7 +194,7 @@ public class Lexic {
      * @return ¿Es un signo de apertura?
      */
     public boolean esCaracterApertura(String lexema) {
-        return CLASIFICACION_LEXICA.OPERATORS.esSignoApertura(lexema);
+        return CLASIFICACION_LEXICA.esSignoApertura(lexema);
     }
 
     /**
@@ -187,20 +204,63 @@ public class Lexic {
      * @return ¿Es un signo de cierre?
      */
     public boolean esCaracterCierre(String lexema) {
-        return CLASIFICACION_LEXICA.OPERATORS.esSignoCierre(lexema);
+        return CLASIFICACION_LEXICA.esSignoCierre(lexema);
     }
 
     /**
-     * Funcion que evalua si el lexema pertenece a un operador.
+     * Funcion que evalua si el lexema pertenece a un signo de operacion.
      *
      * @param lexema Nombre propio del token.
      * @return ¿Es un operador?
      */
     public boolean esOperador(String lexema) {
-        return CLASIFICACION_LEXICA.OPERATORS.esSignoAritmetico(lexema)
-                || CLASIFICACION_LEXICA.OPERATORS.esSignoAsignacion(lexema)
-                || CLASIFICACION_LEXICA.OPERATORS.esSignoComparacion(lexema)
-                || CLASIFICACION_LEXICA.OPERATORS.esSignoLogico(lexema);
+        return CLASIFICACION_LEXICA.esSignoOperacional(lexema);
+    }
+
+    /**
+     * Funcion que evalua si el lexema pertenece a un operando.
+     * @param lexema Nombre propio del token.
+     * @return ¿Es un operando?
+     */
+    public boolean esOperando(String lexema){
+        return esConstante(lexema) || esIdentificador(lexema);
+    }
+
+    /**
+     * Funcion que evalua si el lexema pertenece a un signo de asignacion de variables.
+     *
+     * @param lexema Nombre propio del token.
+     * @return ¿Es un signo de asignacion?
+     */
+    public boolean esAsignador(String lexema) {
+        return CLASIFICACION_LEXICA.esSignoAsignacion(lexema);
+    }
+
+    /**
+     * Funcion que determina si el atributo del token pertenece a la asignacion de numeros enteros.
+     * @param atributo Atributo del token.
+     * @return ¿Es un numero entero?
+     */
+    public boolean esEntero(int atributo){
+        return 446 == atributo;
+    }
+
+    /**
+     * Funcion que determina si el atributo del token pertenece a la asignacion de numeros flotantes.
+     * @param atributo Atributo del token.
+     * @return ¿Es un numero flotante?
+     */
+    public boolean esFlotante(int atributo){
+        return 445 == atributo;
+    }
+
+    /**
+     * Funcion que determina si el atributo del token pertenece a la asignacion de numeros flotantes.
+     * @param atributo Atributo del token.
+     * @return ¿Es un numero flotante?
+     */
+    public boolean esCadena(int atributo){
+        return -35 == atributo;
     }
 
 }

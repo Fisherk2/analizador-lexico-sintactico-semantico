@@ -1,3 +1,12 @@
 {
-  "SENTENCES": [5,6,7,8,9]
+  "DECLARATIONS": [5],
+  "EXPRESSIONS_ASIGNMENTS": [6],
+  "INPUTS_OUPUTS": [7,8],
+  "CONTROL_FLOW": [9],
+  "LOOPS": [0],
+  "FUNCTIONS": [0],
+  "RETURNS": [0],
+  "CLASSES": [0],
+  "THREADS": [0],
+  "HANDLER_EXCEPTION": [0]
 }

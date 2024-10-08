@@ -1,6 +1,5 @@
 package lenguaje;
 
-import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.Objects;
 import java.util.regex.PatternSyntaxException;
@@ -37,6 +36,14 @@ public class Clasificacion {
      */
     public final Operadores OPERATORS;
     /**
+     * Caracter de apertura que pertenecen al lenguaje.
+     */
+    public final Categoria OPENER_SIGN;
+    /**
+     * Caracter de cerradura que pertenecen al lenguaje.
+     */
+    public final Categoria CLOSER_SIGN;
+    /**
      * Caracteres especiales que pertenezcan al lenguaje.
      */
     public final Categoria[] SPECIAL_CHARS;
@@ -47,13 +54,25 @@ public class Clasificacion {
      * @param palabras_reservadas Palabras reservadas que pertenezcan al lenguaje.
      * @param numero_entero       Numeros enteros que pertenezcan al lenguaje.
      * @param numero_flotante     Numeros flotantes que pertenezcan al lenguaje.
-     * @param cadena              Identificadores que pertenezcan al lenguaje.
-     * @param identificador       Signos operacionales que pertenezcan al lenguaje.
-     * @param signos_operadores   Caracteres especiales que pertenezcan al lenguaje.
+     * @param cadena              Cadenas de texto que pertenezcan al lenguaje.
+     * @param identificador       Identificadores que pertenezcan al lenguaje.
+     * @param signos_operadores   Signos operacionales que pertenezcan al lenguaje.
+     * @param signo_apertura      Caracter o signo de apertura que pertenezcan al lenguaje.
+     * @param signo_cerradura     Caracter o signo de cerradura que pertenezcan al lenguaje.
      * @param chars_especiales    Caracteres especiales que pertenezcan al lenguaje.
      * @implNote Si alguna clasificacion no pertenece al lenguaje, debes dejarlo VACIO = NULL.
      */
-    public Clasificacion(Categoria[] palabras_reservadas, Categoria numero_entero, Categoria numero_flotante, Categoria cadena, Categoria identificador, Operadores signos_operadores, Categoria[] chars_especiales) {
+    public Clasificacion(
+            Categoria[] palabras_reservadas,
+            Categoria numero_entero,
+            Categoria numero_flotante,
+            Categoria cadena,
+            Categoria identificador,
+            Operadores signos_operadores,
+            Categoria signo_apertura,
+            Categoria signo_cerradura,
+            Categoria[] chars_especiales
+    ) {
         this.WORD_RESERVES = palabras_reservadas;
         this.INTEGER_NUMBERS = numero_entero;
         this.FLOAT_NUMBERS = numero_flotante;
@@ -61,6 +80,8 @@ public class Clasificacion {
         this.IDENTIFIERS = identificador;
         this.OPERATORS = signos_operadores;
         this.SPECIAL_CHARS = chars_especiales;
+        this.OPENER_SIGN = signo_apertura;
+        this.CLOSER_SIGN = signo_cerradura;
     }
 
     @Override
@@ -107,6 +128,14 @@ public class Clasificacion {
         }
 
         allElements.addAll(OPERATORS.getAllSignos());
+
+        if (OPENER_SIGN.esValido()) {
+            allElements.add(OPENER_SIGN);
+        }
+
+        if (CLOSER_SIGN.esValido()) {
+            allElements.add(CLOSER_SIGN);
+        }
 
         for (Categoria caracter_especial : SPECIAL_CHARS) {
             if (caracter_especial.esValido()) {
@@ -256,12 +285,12 @@ public class Clasificacion {
     }
 
     /**
-     * Funcion que verifica si el lexema es un Operador del lenguaje (Incluyendo Caracter de apertura y cierre).
+     * Funcion que verifica si el lexema es un Operador del lenguaje.
      *
      * @param lexema Nombre propio, cadena o caracter
      * @return ¿Es un Operador?
      */
-    public boolean esOperador(String lexema) {
+    public boolean esSignoOperacional(String lexema) {
         for (Categoria signo : OPERATORS.getAllSignos()) {
             try {
 
@@ -296,6 +325,75 @@ public class Clasificacion {
 
             } catch (PatternSyntaxException ex) {
                 System.err.println("ERROR, NO PUEDE ANALIZAR LA EXPRESION REGULAR: " + caracter_especial.REGEX + "\n CORRIJALO PARA CONTINUAR EVALUANDO.");
+            } catch (NullPointerException error) {
+                return false;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Funcion que verifica si el simbolo ingresado es un signo de apertura.
+     *
+     * @param lexema Nombre propio, caracter o cadena de texto.
+     * @return ¿Es un signo de apertura?
+     */
+    public boolean esSignoApertura(String lexema) {
+        try {
+
+            if (lexema.matches(OPENER_SIGN.REGEX)) {
+                return true;
+            }
+
+        } catch (PatternSyntaxException ex) {
+            System.err.println("ERROR, NO PUEDE ANALIZAR LA EXPRESION REGULAR: " + STRINGS.REGEX + "\n CORRIJALO PARA CONTINUAR EVALUANDO.");
+        } catch (NullPointerException error) {
+            return false;
+        }
+
+        return false;
+    }
+
+    /**
+     * Funcion que verifica si el simbolo ingresado es un signo de cierre.
+     *
+     * @param lexema Nombre propio, caracter o cadena de texto.
+     * @return ¿Es un signo de cierre?
+     */
+    public boolean esSignoCierre(String lexema) {
+
+        try {
+
+            if (lexema.matches(CLOSER_SIGN.REGEX)) {
+                return true;
+            }
+
+        } catch (PatternSyntaxException ex) {
+            System.err.println("ERROR, NO PUEDE ANALIZAR LA EXPRESION REGULAR: " + STRINGS.REGEX + "\n CORRIJALO PARA CONTINUAR EVALUANDO.");
+        } catch (NullPointerException error) {
+            return false;
+        }
+
+        return false;
+    }
+
+    /**
+     * Funcion que verifica si el simbolo ingresado es un signo de asignacion de variables.
+     *
+     * @param lexema Nombre propio, caracter o cadena de texto.
+     * @return ¿Es un signo de asignacion?
+     */
+    public boolean esSignoAsignacion(String lexema) {
+        for (Categoria signo : OPERATORS.getSignosAsignacion()) {
+            try {
+
+                // ◂ ◂ Si alguna de los caracteres especiales que se encuentran en las clasificaciones coincide ▸ ▸ //
+                if (lexema.matches(signo.REGEX)) {
+                    return true;
+                }
+
+            } catch (PatternSyntaxException ex) {
+                System.err.println("ERROR, NO PUEDE ANALIZAR LA EXPRESION REGULAR: " + signo.REGEX + "\n CORRIJALO PARA CONTINUAR EVALUANDO.");
             } catch (NullPointerException error) {
                 return false;
             }
@@ -344,11 +442,6 @@ public class Clasificacion {
         public final Categoria OR;
         public final Categoria NOT;
 
-        // ◂ ◂ ◂ ◂ Signos de agrupacion ▸ ▸ ▸ ▸ //
-        public final Categoria OPENER_SIGN;
-        public final Categoria CLOSER_SIGN;
-
-
         /**
          * Clase que almacena los simbolos representativos de los operadores aritmeticos, de asignacion, comparacion y logicas
          * de una sentencia que pertenezcan al lenguaje.
@@ -376,8 +469,6 @@ public class Clasificacion {
          * @param and             Simbolo que representa en el lenguaje la compuerta logica AND.
          * @param or              Simbolo que representa en el lenguaje la compuerta logica OR.
          * @param not             Simbolo que representa en el lenguaje la compuerta logica NOT.
-         * @param signo_apertura  Simbolo que representa en el lenguaje la apertura de agrupacion de expresiones.
-         * @param signo_cierre    Simbolo que representa en el lenguaje el cierre de agrupacion de expresiones.
          */
         public Operadores(Categoria suma,
                           Categoria resta,
@@ -401,9 +492,7 @@ public class Clasificacion {
                           Categoria diferente_que,
                           Categoria and,
                           Categoria or,
-                          Categoria not,
-                          Categoria signo_apertura,
-                          Categoria signo_cierre
+                          Categoria not
         ) {
             this.ADDITION = suma;
             this.SUBTRACTION = resta;
@@ -428,10 +517,6 @@ public class Clasificacion {
             this.AND = and;
             this.OR = or;
             this.NOT = not;
-            this.OPENER_SIGN = signo_apertura;
-            this.CLOSER_SIGN = signo_cierre;
-
-
         }
 
         @Override
@@ -518,14 +603,6 @@ public class Clasificacion {
                 }
             }
 
-            if (OPENER_SIGN.esValido()) {
-                allElements.add(OPENER_SIGN);
-            }
-
-            if (CLOSER_SIGN.esValido()) {
-                allElements.add(CLOSER_SIGN);
-            }
-
             return allElements;
         }
 
@@ -536,7 +613,7 @@ public class Clasificacion {
          * @return Nivel de jerarquia de operaciones.
          * @implNote Asignacion, comparacion y booleanos = 0
          */
-        public int precedencia(String lexema) {
+        public int precedenciaAritmetica(String lexema) {
 
             if (esSignoComparacion(lexema)) {
                 return 1;
@@ -656,36 +733,6 @@ public class Clasificacion {
                         return true;
                     }
                 }
-            }
-
-            return false;
-        }
-
-        /**
-         * Funcion que verifica si el simbolo ingresado es un signo de apertura.
-         *
-         * @param lexema Nombre propio, caracter o cadena de texto.
-         * @return ¿Es un signo de apertura?
-         */
-        public boolean esSignoApertura(String lexema) {
-
-            if (OPENER_SIGN.esValido()) {
-                return lexema.matches(OPENER_SIGN.REGEX);
-            }
-
-            return false;
-        }
-
-        /**
-         * Funcion que verifica si el simbolo ingresado es un signo de cierre.
-         *
-         * @param lexema Nombre propio, caracter o cadena de texto.
-         * @return ¿Es un signo de cierre?
-         */
-        public boolean esSignoCierre(String lexema) {
-
-            if (OPENER_SIGN.esValido()) {
-                return lexema.matches(CLOSER_SIGN.REGEX);
             }
 
             return false;

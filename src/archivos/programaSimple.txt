@@ -1,0 +1,20 @@
+Programa main
+
+Inicio
+
+    Real multiple, cuenta;
+    Entero numero, res;
+
+    Leer (numero);
+
+    multiple = 0.12 * (numero - 7);
+
+    Escribir(numero);
+    Escribir(multiple);
+
+    numero = multiple / 24;
+    res = numero + cuenta;
+    Escribir(res);
+
+    Real multiple;
+Fin

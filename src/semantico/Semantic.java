@@ -13,19 +13,17 @@ import java.util.LinkedList;
  */
 public class Semantic {
 
-
     //▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼ VARIABLES ▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼//
     private final LinkedHashSet<Simbolo> TABLA_DE_SIMBOLOS;
     private final LinkedList<Sentencia> TABLA_DE_NOTACIONES;
     private final Notaciones VERIFICADOR_NOTACIONES;
-    public final Verificador VERIFICADOR_DATOS;
-
+    private final Verificador VERIFICADOR_DATOS;
 
     /**
      * Clase que almacena las propiedades de un analizador semantico.
      *
-     * @param verificador_tipos_de_datos Tabla de verificador de datos del lenguaje que establece que tipo de datos son operacionalmente compatibles entre si.
-     * @param verificador_notaciones     Objeto que verifica que IDs de la gramatica pertenecen a las instrucciones o sentencias del programa.
+     * @param verificador_tipos_de_datos Verificador de datos del lenguaje que establece que tipo de datos son operacionalmente compatibles entre si.
+     * @param verificador_notaciones     Verificador de IDs de la gramatica que pertenecen a las instrucciones o sentencias del programa.
      */
     public Semantic(Verificador verificador_tipos_de_datos, Notaciones verificador_notaciones) {
         TABLA_DE_SIMBOLOS = new LinkedHashSet<>();
@@ -40,6 +38,8 @@ public class Semantic {
         String resultado = "\n▼ △ ▼ △ ▼ △ ▼ △ ▼ △ ▼ △ ▼ △ ▼ △ ▼ △ ▼ △ ▼ SEMANTICO ▼ △ ▼ △ ▼ △ ▼ △ ▼ △ ▼ △ ▼ △ ▼ △ ▼ △ ▼ △ ▼\n";
 
         resultado += VERIFICADOR_DATOS;
+
+        resultado += VERIFICADOR_NOTACIONES;
 
         resultado += "\n⧖ ⧗ ⧖ ⧗ ⧖ ⧗ ⧖ ⧗ ⧖ ⧗ ⧖ ⧗ ⧖ ⧗ ⧖ ⧗ ⧖ ⧗ ⧖  TABLA DE SIMBOLOS COMPLETA ⧖ ⧗ ⧖ ⧗ ⧖ ⧗ ⧖ ⧗ ⧖ ⧗ ⧖ ⧗ ⧖ ⧗ ⧖ ⧗ ⧖ ⧗ ⧖\n";
 
@@ -100,9 +100,24 @@ public class Semantic {
     }
 
     /**
+     * Metodo que actualiza el tipo de dato de la variable en la tabla de simbolos.
+     *
+     * @param atributo_variable ID de la variable que se encuentra en la tabla de simbolos
+     * @param tipo_dato         Tipo de dato que sera asignado a esa variable.
+     */
+    public void actualizarTipo(int atributo_variable, int tipo_dato) {
+        for (Simbolo simbolo : TABLA_DE_SIMBOLOS) {
+            if (simbolo.getATRIBUTO() == atributo_variable) {
+                simbolo.setTipoDeDato(tipo_dato);
+                break;
+            }
+        }
+    }
+
+    /**
      * Metodo que almacena sentencias a la tabla de notaciones.
      *
-     * @param notacion  Sentencia o Instruccion del programa.
+     * @param notacion Sentencia o Instruccion del programa.
      */
     public void almacenarNotacion(Sentencia notacion) {
         TABLA_DE_NOTACIONES.add(notacion);
@@ -165,8 +180,110 @@ public class Semantic {
      * @return ¿Es una sentencia o instruccion?
      */
     public boolean esSentencia(int predict_x_a) {
-        for (int id : VERIFICADOR_NOTACIONES.SENTENCES) {
+        for (int id : VERIFICADOR_NOTACIONES.getAllTypeStatements()) {
             if (id == predict_x_a) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Funcion que verifica si el indice de la gramatica pertenece a una sentencia de declaracion de variables.
+     *
+     * @param id_gramatica ID de la gramatica.
+     * @return ¿Es una sentencia de declaracion?
+     */
+    public boolean esDeclaracion(int id_gramatica) {
+        for (int id : VERIFICADOR_NOTACIONES.DECLARATIONS) {
+            return id == id_gramatica;
+        }
+        return false;
+    }
+
+    /**
+     * Funcion que verifica si los operandos pueden realizar operaciones entre si.
+     *
+     * @param operandoA Tipo de dato de la tabla de simbolos de la variante o constante.
+     * @param operandoB Tipo de dato de la tabla de simbolos de la variante o constante.
+     * @return ¿Es permitido operar con los operandos de entrada?
+     */
+    public boolean sonTiposCompatibles(int operandoA, int operandoB, Token operador) {
+
+        return sonCompatiblesEnteros(operandoA, operandoB)
+                || sonCompatiblesFlotantes(operandoA, operandoB)
+                || sonCompatiblesCadenas(operandoA, operandoB, operador);
+
+    }
+
+    /**
+     * Funcion que verifica si los operandos pueden realizar operaciones con enteros.
+     *
+     * @param operandoA Tipo de dato de la tabla de simbolos de la variante o constante.
+     * @param operandoB Tipo de dato de la tabla de simbolos de la variante o constante.
+     * @return ¿Es permitido operar enteros con los operandos de entrada?
+     */
+    public boolean sonCompatiblesEnteros(int operandoA, int operandoB) {
+        int tipoPermitidoA;
+        int tipoPermitidoB;
+
+        // ◂ ◂ ◂ ◂ ¿Son enteros compatibles? ▸ ▸ ▸ ▸ //
+        for (int i = 0; i < VERIFICADOR_DATOS.INTEGER.length; i++) {
+            tipoPermitidoA = VERIFICADOR_DATOS.INTEGER[i][0];
+            tipoPermitidoB = VERIFICADOR_DATOS.INTEGER[i][1];
+            if ((tipoPermitidoA == operandoA && tipoPermitidoB == operandoB) || (tipoPermitidoA == operandoB && tipoPermitidoB == operandoA)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Funcion que verifica si los operandos pueden realizar operaciones con flotantes.
+     *
+     * @param operandoA Tipo de dato de la tabla de simbolos de la variante o constante.
+     * @param operandoB Tipo de dato de la tabla de simbolos de la variante o constante.
+     * @return ¿Es permitido operar flotantes con los operandos de entrada?
+     */
+    public boolean sonCompatiblesFlotantes(int operandoA, int operandoB) {
+        int tipoPermitidoA;
+        int tipoPermitidoB;
+
+        // ◂ ◂ ◂ ◂ ¿Son flotantes compatibles? ▸ ▸ ▸ ▸ //
+        for (int i = 0; i < VERIFICADOR_DATOS.FLOAT.length; i++) {
+            tipoPermitidoA = VERIFICADOR_DATOS.FLOAT[i][0];
+            tipoPermitidoB = VERIFICADOR_DATOS.FLOAT[i][1];
+            if ((tipoPermitidoA == operandoA && tipoPermitidoB == operandoB)
+                    || (tipoPermitidoA == operandoB && tipoPermitidoB == operandoA)
+            ) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Funcion que verifica si los operandos pueden realizar operaciones con cadenas de texto.
+     *
+     * @param operandoA Tipo de dato de la tabla de simbolos de la variante o constante.
+     * @param operandoB Tipo de dato de la tabla de simbolos de la variante o constante.
+     * @param operador  Operador aritmetico que realiza dicha operacion entre dos cadenas de texto.
+     * @return ¿Es permitido operar cadenas con los operandos de entrada?
+     */
+    public boolean sonCompatiblesCadenas(int operandoA, int operandoB, Token operador) {
+        int tipoPermitidoA;
+        int tipoPermitidoB;
+
+        // ◂ ◂ ◂ ◂ TODO: Si no es un operador de adicion, no son compatibles ▸ ▸ ▸ ▸ //
+
+        // ◂ ◂ ◂ ◂ ¿Son cadenas compatibles? ▸ ▸ ▸ ▸ //
+        for (int i = 0; i < VERIFICADOR_DATOS.STRING.length; i++) {
+            tipoPermitidoA = VERIFICADOR_DATOS.STRING[i][0];
+            tipoPermitidoB = VERIFICADOR_DATOS.STRING[i][1];
+            if ((tipoPermitidoA == operandoA && tipoPermitidoB == operandoB)
+                    || (tipoPermitidoA == operandoB && tipoPermitidoB == operandoA)
+            ) {
                 return true;
             }
         }

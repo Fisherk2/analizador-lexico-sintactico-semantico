@@ -24,7 +24,9 @@ public class Main {
 
     private void probarAnalizador() {
 
-        String codigo = new Fichero("programa.txt").leer_texto_plano();
+        String codigo = new Fichero("programaSimple.txt").leer_texto_plano();
+        //String codigo = new Fichero("programa.txt").leer_texto_plano();
+
 
         Lexic lexico = new Lexic(
                 (Automata) new Fichero("automata.json").deserializar_json(Automata.class),
@@ -45,8 +47,8 @@ public class Main {
         System.out.println(codigo);
         analizador.analizar_codigo_fuente(codigo);
 
-        //System.out.println(lexico);
-        //System.out.println(sintactico);
+        System.out.println(lexico);
+        System.out.println(sintactico);
         System.out.println(semantico);
 
     }

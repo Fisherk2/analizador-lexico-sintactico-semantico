@@ -45,11 +45,11 @@
 
     "AND": {},
     "OR": {},
-    "NOT": {},
-
-    "OPENER_SIGN": {"NAME": "Caracter apertura", "REGEX": "\\(", "ATTRIBUTE": 40},
-    "CLOSER_SIGN": {"NAME": "Caracter cerradura", "REGEX": "\\)", "ATTRIBUTE": 41}
+    "NOT": {}
   },
+
+  "OPENER_SIGN": {"NAME": "Caracter apertura", "REGEX": "\\(", "ATTRIBUTE": 40},
+  "CLOSER_SIGN": {"NAME": "Caracter cerradura", "REGEX": "\\)", "ATTRIBUTE": 41},
 
   "SPECIAL_CHARS":
   [

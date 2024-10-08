@@ -26,7 +26,7 @@ public class Verificador {
      * @param ids_integer Pares de cruces donde el resultado dara un tipo de dato entero.
      * @param ids_float   Pares de cruces donde el resultado dara un tipo de dato flotante.
      * @param ids_string  Pares de cruces donde el resultado dara un tipo de dato cadena de texto.
-     * @implNote Si en tu lenguaje no hay operaciones con algun tipo de dato, simplemente dejalo con un CERO = [[0]]
+     * @implNote Si en tu lenguaje no hay operaciones con algun tipo de dato, simplemente dejalo con un par de CEROs = [[0,0]]
      */
     public Verificador(int[][] ids_integer, int[][] ids_float, int[][] ids_string) {
         this.INTEGER = ids_integer;

@@ -9,23 +9,33 @@ public class Sentencia {
 
     //▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼ ATRIBUTOS ▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼//
     /**
+     * Tipo de sentencia de la gramatica dependiendo de su clasificacion en el JSON de notaciones.
+     */
+    public final int TYPE_STATEMENT;
+    /**
      * Expresion infija de la sentencia
      */
     public final Token[] INFIJA;
-
+    /**
+     * Expresion prefija de la sentencia.
+     */
     public final Token[] PREFIJA;
-
+    /**
+     * Expresion posfija de la sentencia.
+     */
     public final Token[] POSFIJA;
 
     /**
      * Clase que almacena la notacion de una sentencia o instruccion generada por la gramatica.
      *
-     * @param infija  Expresion Infija de la sentencia.
-     * @param prefija Expresion prefija de la sentencia.
-     * @param posfija Expresion posfija de la sentencia.
+     * @param tipo_sentencia Tipo de sentencia de la gramatica dependiendo de su clasificacion en el JSON de notaciones.
+     * @param infija         Expresion Infija de la sentencia.
+     * @param prefija        Expresion prefija de la sentencia.
+     * @param posfija        Expresion posfija de la sentencia.
      * @implNote Si solo quieres utilizar dos tipos de expresion, puedes dejar en NULL tanto la prefija o la posfija.
      */
-    public Sentencia(Token[] infija, Token[] prefija, Token[] posfija) {
+    public Sentencia(int tipo_sentencia, Token[] infija, Token[] prefija, Token[] posfija) {
+        this.TYPE_STATEMENT = tipo_sentencia;
         this.INFIJA = infija;
         this.PREFIJA = prefija;
         this.POSFIJA = posfija;
@@ -33,7 +43,7 @@ public class Sentencia {
 
     @Override
     public String toString() {
-        String resultado = "INFIJA: ";
+        String resultado = "Tipo: ["+TYPE_STATEMENT+"] INFIJA: ";
 
         for (Token token : INFIJA) {
             resultado += token.LEXEMA + " ";
