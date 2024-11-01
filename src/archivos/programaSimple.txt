@@ -9,12 +9,11 @@ Inicio
 
     multiple = 0.12 * (numero - 7);
 
-    Escribir(numero);
+    Escribir(cuenta);
     Escribir(multiple);
 
-    numero = multiple / 24;
-    res = numero + cuenta;
+    numero = numero - 24;
+    res = numero * res;
     Escribir(res);
 
-    Real multiple;
 Fin

@@ -17,9 +17,9 @@ public class Analizador {
 
     //▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼ VARIABLES ▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼//
 
-    private final Lexic LEXICO;
-    private final Syntax SINTACTICO;
-    private final Semantic SEMANTICO;
+    public final Lexic LEXICO;
+    public final Syntax SINTACTICO;
+    public final Semantic SEMANTICO;
 
     private final Stack<String> STACK_DRIVER;
     private LinkedList<String> lineasCodigoFuente;
@@ -44,6 +44,16 @@ public class Analizador {
 
     }
 
+    @Override
+    public String toString() {
+
+        String resultado = "\n※⁙⁘※⁙⁘※⁙⁘※※⁙⁘※⁙⁘※⁙⁘※ ANALIZADOR ※⁙⁘※⁙⁘※⁙⁘※※⁙⁘※⁙⁘※⁙⁘※\n";
+
+        resultado += LEXICO + "\n" + SINTACTICO + "\n" + SEMANTICO;
+
+        return resultado;
+    }
+
     //▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼ PROCESO DE ANALISIS DE CODIGO FUENTE ▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼//
 
     /**
@@ -65,8 +75,10 @@ public class Analizador {
         System.out.println("\n■▣□▣■▣□▣■▣□▣■▣□▣■▣□▣■▣□▣ ANALISIS LEXICO-SINTACTICO TERMINADO ■▣□▣■▣□▣■▣□▣■▣□▣■▣□▣■▣□▣\n");
 
 
+        // ◂ ◂ ◂ ◂ Reiniciamos STACK DRIVER ▸ ▸ ▸ ▸ //
         STACK_DRIVER.clear();
         STACK_DRIVER.push(SINTACTICO.getSimboloInicial());
+
         secondLLDRIVER(STACK_DRIVER, 0, 0);
         System.out.println("\n■▣□▣■▣□▣■▣□▣■▣□▣■▣□▣■▣□▣ ANALISIS SEMANTICO TERMINADO ■▣□▣■▣□▣■▣□▣■▣□▣■▣□▣■▣□▣\n");
     }

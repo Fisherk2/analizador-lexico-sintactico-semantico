@@ -145,7 +145,7 @@ public class Semantic {
      * Funcion que busca y devuelve un simbolo existente de la tabla de simbolos.
      *
      * @param token_simbolo Token que puede estar en la tabla de simbolos
-     * @return Simbolo de su respectiva tabla, Null = no existe en la tabla.
+     * @return Simbolo de su respectiva tabla.
      */
     public Simbolo getSimbolo(Token token_simbolo) {
         for (Simbolo simbolo : TABLA_DE_SIMBOLOS) {
@@ -153,7 +153,7 @@ public class Semantic {
                 return simbolo;
             }
         }
-        return null;
+        return new Simbolo(new Token(""));
     }
 
     //▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼ VALIDACIONES ▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼//
@@ -196,7 +196,144 @@ public class Semantic {
      */
     public boolean esDeclaracion(int id_gramatica) {
         for (int id : VERIFICADOR_NOTACIONES.DECLARATIONS) {
-            return id == id_gramatica;
+            if (id == id_gramatica) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Funcion que verifica si el indice de la gramatica pertenece a una sentencia de asignacion de variables.
+     *
+     * @param id_gramatica ID de la gramatica.
+     * @return ¿Es una sentencia de asignacion?
+     */
+    public boolean esAsignacion(int id_gramatica) {
+        for (int id : VERIFICADOR_NOTACIONES.EXPRESSIONS_ASIGNMENTS) {
+            if (id == id_gramatica) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Funcion que verifica si el indice de la gramatica pertenece a una sentencia de entrada/salida de valores en consola.
+     *
+     * @param id_gramatica ID de la gramatica.
+     * @return ¿Es una sentencia de Input/Output de consola?
+     */
+    public boolean esEntradaSalidaConsola(int id_gramatica) {
+        for (int id : VERIFICADOR_NOTACIONES.INPUTS_OUPUTS) {
+            if (id == id_gramatica) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Funcion que verifica si el indice de la gramatica pertenece a una sentencia de control de flujo.
+     *
+     * @param id_gramatica ID de la gramatica.
+     * @return ¿Es una sentencia de Control de flujo?
+     */
+    public boolean esFlujoControl(int id_gramatica) {
+        for (int id : VERIFICADOR_NOTACIONES.CONTROL_FLOW) {
+            if (id == id_gramatica) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Funcion que verifica si el indice de la gramatica pertenece a una sentencia de bucle.
+     *
+     * @param id_gramatica ID de la gramatica.
+     * @return ¿Es una sentencia de bucle?
+     */
+    public boolean esBucle(int id_gramatica) {
+        for (int id : VERIFICADOR_NOTACIONES.LOOPS) {
+            if (id == id_gramatica) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Funcion que verifica si el indice de la gramatica pertenece a una sentencia de funciones.
+     *
+     * @param id_gramatica ID de la gramatica.
+     * @return ¿Es una sentencia de funciones?
+     */
+    public boolean esFuncion(int id_gramatica) {
+        for (int id : VERIFICADOR_NOTACIONES.FUNCTIONS) {
+            if (id == id_gramatica) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Funcion que verifica si el indice de la gramatica pertenece a una sentencia de retorno.
+     *
+     * @param id_gramatica ID de la gramatica.
+     * @return ¿Es una sentencia de retorno?
+     */
+    public boolean esRetorno(int id_gramatica) {
+        for (int id : VERIFICADOR_NOTACIONES.RETURNS) {
+            if (id == id_gramatica) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Funcion que verifica si el indice de la gramatica pertenece a una sentencia de clase.
+     *
+     * @param id_gramatica ID de la gramatica.
+     * @return ¿Es una sentencia de clase?
+     */
+    public boolean esClase(int id_gramatica) {
+        for (int id : VERIFICADOR_NOTACIONES.CLASSES) {
+            if (id == id_gramatica) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Funcion que verifica si el indice de la gramatica pertenece a una sentencia de hilos.
+     *
+     * @param id_gramatica ID de la gramatica.
+     * @return ¿Es una sentencia de hilos?
+     */
+    public boolean esHilo(int id_gramatica) {
+        for (int id : VERIFICADOR_NOTACIONES.THREADS) {
+            if (id == id_gramatica) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Funcion que verifica si el indice de la gramatica pertenece a una sentencia de manejo de excepciones.
+     *
+     * @param id_gramatica ID de la gramatica.
+     * @return ¿Es una sentencia de manejo de excepciones?
+     */
+    public boolean esManejoExcepcion(int id_gramatica) {
+        for (int id : VERIFICADOR_NOTACIONES.HANDLER_EXCEPTION) {
+            if (id == id_gramatica) {
+                return true;
+            }
         }
         return false;
     }

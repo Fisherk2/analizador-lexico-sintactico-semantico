@@ -119,6 +119,20 @@ public class Lexic {
         return CLASIFICACION_LEXICA.STRINGS;
     }
 
+    /**
+     * Funcion que devuelve la clasificacion lexica que pertenece al atributo introducido.
+     * @param atributo Atributo que pertenece dicha clasificacion lexica.
+     * @return Clasificacion Lexica.
+     */
+    public Clasificacion.Categoria getClasificacionLexica(int atributo){
+        for(Clasificacion.Categoria categoria: CLASIFICACION_LEXICA.getAllCategorias()){
+            if(atributo == categoria.ATTRIBUTE){
+                return categoria;
+            }
+        }
+        return new Clasificacion.Categoria("NO CLASIFICADO","",-1);
+    }
+
     //▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼ VALIDACIONES ▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼▲▼//
 
     /**
@@ -242,6 +256,7 @@ public class Lexic {
      * @return ¿Es un numero entero?
      */
     public boolean esEntero(int atributo){
+        //TODO: EXTRAER EL 446 DE LA TABLA DE SIMBOLOS
         return 446 == atributo;
     }
 
@@ -251,6 +266,7 @@ public class Lexic {
      * @return ¿Es un numero flotante?
      */
     public boolean esFlotante(int atributo){
+        //TODO: EXTRAER EL 445 DE LA TABLA DE SIMBOLOS
         return 445 == atributo;
     }
 
@@ -260,6 +276,7 @@ public class Lexic {
      * @return ¿Es un numero flotante?
      */
     public boolean esCadena(int atributo){
+        //TODO: EXTRAER EL -35 DE LA TABLA DE SIMBOLOS
         return -35 == atributo;
     }
 

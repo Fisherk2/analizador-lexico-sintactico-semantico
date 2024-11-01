@@ -102,7 +102,7 @@ public class Clasificacion {
      *
      * @return Lista enlazada irrepetible con todas las clasificaciones lexicas del lenguaje
      */
-    private LinkedHashSet<Categoria> getAllCategorias() {
+    public LinkedHashSet<Categoria> getAllCategorias() {
         LinkedHashSet<Categoria> allElements = new LinkedHashSet<>();
 
         for (Categoria palabra_reservada : WORD_RESERVES) {
